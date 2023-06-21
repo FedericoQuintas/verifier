@@ -1,6 +1,7 @@
 package com.challenge.verifier.placeOrder.domain;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public record Order(Id id, Side side, Quantity quantity, Price price) {
 
@@ -9,13 +10,13 @@ public record Order(Id id, Side side, Quantity quantity, Price price) {
     public static final int EXPECTED_FIELDS_AMOUNT = 4;
     private static final String SELL_INITIAL = "S";
 
-    public static Order buildFrom(String nextLine) {
+    public static Order buildFrom(String nextLine, Instant now) {
         String[] parts = nextLine.split(COMMA);
         validateFieldsAmount(parts);
         String orderId = parse(parts[0], "Order Id is required");
-        Side side = obtainSide(parts[1]);
         String price = parse(parts[2], "Price is required");
         String quantity = parse(parts[3], "Quantity is required");
+        Side side = parseSide(parts[1]);
         return new Order(Id.of(orderId), side, Quantity.of(Integer.parseInt(quantity)), Price.of(new BigDecimal(price)));
     }
 
@@ -28,7 +29,7 @@ public record Order(Id id, Side side, Quantity quantity, Price price) {
         if(parts.length < EXPECTED_FIELDS_AMOUNT) throw exception("Incomplete input");
     }
 
-    private static Side obtainSide(String side) {
+    private static Side parseSide(String side) {
         if(side == null || side.isEmpty()) throw exception("Side is required");
         if(BUY_INITIAL.equalsIgnoreCase(side)) return Side.BUY;
         if(SELL_INITIAL.equalsIgnoreCase(side)) return Side.SELL;
@@ -38,4 +39,5 @@ public record Order(Id id, Side side, Quantity quantity, Price price) {
     private static RuntimeException exception(String message) {
         return new RuntimeException(message);
     }
+
 }
