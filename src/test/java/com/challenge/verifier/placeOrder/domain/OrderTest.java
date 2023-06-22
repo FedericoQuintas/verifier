@@ -18,7 +18,7 @@ public class OrderTest {
     @Test
     public void buildBuyOrderFromString(){
         Order order = OrderTestHelper.buildOrder();
-        assertEquals(order.id(), Id.of("10000"));
+        assertEquals(order.id(), Id.of(10000L));
         assertEquals(order.side(), Side.BUY);
         assertEquals(order.price(), Price.of(BigDecimal.valueOf(98)));
         assertEquals(order.quantity(), Quantity.of(25500));
@@ -89,4 +89,5 @@ public class OrderTest {
             assertEquals("Incomplete input", ex.getMessage());
         }
     }
+
 }

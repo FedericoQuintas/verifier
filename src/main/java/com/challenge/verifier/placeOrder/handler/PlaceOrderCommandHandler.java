@@ -13,7 +13,7 @@ public class PlaceOrderCommandHandler {
     private OrderPlacedPublisher publisher;
     private OrderRepository orderRepository;
 
-    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, OrderRepository orderRepository){
+    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, OrderRepository orderRepository) {
         this.publisher = publisher;
         this.orderRepository = orderRepository;
     }
@@ -21,6 +21,6 @@ public class PlaceOrderCommandHandler {
     public void place(Order order) {
         Event event = Event.with(order, EventType.ORDER_PLACED);
         publisher.publish(event);
-        orderRepository.add(event);
+        orderRepository.saveAndFlush(event.asPersistentModel());
     }
 }

@@ -1,8 +1,8 @@
 package com.challenge.verifier.placeOrder.domain;
 
 
-public record Id(String value) {
-    public static Id of(String value) {
+public record Id(Long value) {
+    public static Id of(Long value) {
         return new Id(value);
     }
 }

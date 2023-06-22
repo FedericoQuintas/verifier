@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verify;
 
 public class PlaceOrderCommandHandlerTest {
 
-    public static final Instant NOW = Instant.now();
     private PlaceOrderCommandHandler placeOrderCommandHandler;
     private OrderPlacedPublisher publisher;
     private OrderRepository orderRepository;
@@ -41,6 +40,6 @@ public class PlaceOrderCommandHandlerTest {
         Order order = OrderTestHelper.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         placeOrderCommandHandler.place(order);
-        verify(orderRepository).add(event);
+        verify(orderRepository).saveAndFlush(event.asPersistentModel());
     }
 }

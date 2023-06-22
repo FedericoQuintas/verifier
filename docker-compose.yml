@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  orders-db:
+    container_name: orders-db
+    image: mysql:8.0
+    networks:
+      - verifier-network
+    environment:
+      - MYSQL_USER=verifier-user
+      - MYSQL_PASSWORD=verifier-pass
+      - MYSQL_DATABASE=ordersDB
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes:
+      - dbvol:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+
+  verifier-app:
+    build:
+      context: .
+    container_name: verifier-app
+    image: verifier-app
+    ports:
+      - "8080:8080"
+    networks:
+      - verifier-network
+    depends_on:
+      - orders-db
+    environment:
+      - MYSQL_HOST=orders-db
+      - MYSQL_USER=verifier-user
+      - MYSQL_PASSWORD=verifier-pass
+      - MYSQL_DATABASE=ordersDB
+      - MYSQL_PORT=3306
+
+networks:
+  verifier-network:
+    name: verifier-network
+
+volumes:
+  dbvol:
