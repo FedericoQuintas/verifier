@@ -1,7 +1,8 @@
 package com.challenge.verifier.placeOrder.ports;
 
 import com.challenge.verifier.placeOrder.domain.Event;
+import com.challenge.verifier.placeOrder.stream.PublisherResult;
 
 public interface OrderPlacedPublisher {
-    void publish(Event event);
+    PublisherResult publish(Event event);
 }

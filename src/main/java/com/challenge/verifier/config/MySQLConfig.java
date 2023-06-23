@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @Profile("!test")
-public class Config {
+public class MySQLConfig {
 
     @Value("${MYSQL_USER}")
     private String username;

@@ -23,14 +23,14 @@ public class PlaceOrderCommandHandler {
     }
 
     public void place(Order order) {
-        Event event = Event.with(order, EventType.ORDER_PLACED);
-        EventPersistentModel eventPersistentModel = event.asPersistentModel();
+        var event = Event.with(order, EventType.ORDER_PLACED);
+        var eventPersistentModel = event.asPersistentModel();
         if (wasOrderAlreadyPlaced(eventPersistentModel)) {
             logger.info("Order " + order.id() + " already placed");
             return;
         }
-        publisher.publish(event);
-        orderRepository.saveAndFlush(eventPersistentModel);
+        var publisherResult = publisher.publish(event);
+        if (publisherResult.succeeded()) orderRepository.saveAndFlush(eventPersistentModel);
     }
 
     private boolean wasOrderAlreadyPlaced(EventPersistentModel eventPersistentModel) {

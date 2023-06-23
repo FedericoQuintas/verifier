@@ -21,18 +21,18 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
     }
 
     private static String parse(String input, String message) {
-        if(input == null || input.isEmpty()) throw exception(message);
+        if (input == null || input.isEmpty()) throw exception(message);
         return input;
     }
 
     private static void validateFieldsAmount(String[] parts) {
-        if(parts.length < EXPECTED_FIELDS_AMOUNT) throw exception("Incomplete input");
+        if (parts.length < EXPECTED_FIELDS_AMOUNT) throw exception("Incomplete input");
     }
 
     private static Side parseSide(String side) {
-        if(side == null || side.isEmpty()) throw exception("Side is required");
-        if(BUY_INITIAL.equalsIgnoreCase(side)) return Side.BUY;
-        if(SELL_INITIAL.equalsIgnoreCase(side)) return Side.SELL;
+        if (side == null || side.isEmpty()) throw exception("Side is required");
+        if (BUY_INITIAL.equalsIgnoreCase(side)) return Side.BUY;
+        if (SELL_INITIAL.equalsIgnoreCase(side)) return Side.SELL;
         throw exception("Invalid order side");
     }
 
@@ -40,4 +40,7 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
         return new RuntimeException(message);
     }
 
+    public boolean isOnBuySide() {
+        return Side.BUY.equals(side);
+    }
 }

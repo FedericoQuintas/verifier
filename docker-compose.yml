@@ -1,5 +1,15 @@
 version: '3.7'
 services:
+  redis:
+    container_name: redis
+    image: 'redis:7'
+    command: bash -c "redis-server --appendonly yes --requirepass redis"
+    ports:
+      - "6379:6379"
+    networks:
+      - verifier-network
+    volumes:
+      - ./data:/data
   orders-db:
     container_name: orders-db
     image: mysql:8.0
@@ -25,6 +35,8 @@ services:
       - "8080:8080"
     networks:
       - verifier-network
+    links:
+      - redis
     depends_on:
       - orders-db
     environment:
@@ -33,6 +45,9 @@ services:
       - MYSQL_PASSWORD=verifier-pass
       - MYSQL_DATABASE=ordersDB
       - MYSQL_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PASS=redis
+      - REDIS_PORT=6379
 
 networks:
   verifier-network:
