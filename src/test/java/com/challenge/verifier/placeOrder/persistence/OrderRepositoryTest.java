@@ -25,7 +25,7 @@ public class OrderRepositoryTest {
     OrderRepository repository;
 
     @Test
-    public void storesOrder() {
+    public void storesAndFindsOrder() {
         Order order = OrderTestHelper.buildOrder();
         EventPersistentModel event = Event.with(order, EventType.ORDER_PLACED).asPersistentModel();
         repository.saveAndFlush(event);
