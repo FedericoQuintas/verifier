@@ -32,8 +32,8 @@ public class RedisOrderPlacedQueuePublisherTest {
         publisher.publish(orderPersistentModel);
 
         ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
-        Thread.sleep(1000);
+        Thread.sleep(400);
         verify(listener).onMessage(captor.capture(), any());
-        assertEquals("{\"id\":10000,\"side\":\"BUY\",\"quantity\":25500,\"price\":98,\"timestamp\":"+timestamp+",\"onBuySide\":true}", captor.getValue().toString());
+        assertEquals("{\"id\":10000,\"side\":\"BUY\",\"quantity\":25500,\"price\":98,\"timestamp\":" + timestamp + ",\"onBuySide\":true}", captor.getValue().toString());
     }
 }
