@@ -9,10 +9,7 @@ import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class PlaceOrderCommandHandlerTest {
 
@@ -41,5 +38,14 @@ public class PlaceOrderCommandHandlerTest {
         Event event = Event.with(order, EventType.ORDER_PLACED);
         placeOrderCommandHandler.place(order);
         verify(orderRepository).saveAndFlush(event.asPersistentModel());
+    }
+
+    @Test
+    public void discardsRepeatedOrder() {
+        Order order = OrderTestHelper.buildOrder();
+        Event event = Event.with(order, EventType.ORDER_PLACED);
+        when(orderRepository.existsById(event.asPersistentModel().getId())).thenReturn(true);
+        placeOrderCommandHandler.place(order);
+        verify(orderRepository, never()).saveAndFlush(event.asPersistentModel());
     }
 }

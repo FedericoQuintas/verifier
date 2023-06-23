@@ -32,6 +32,5 @@ public class OrderStreamTextFileReader implements OrderStreamReader {
                 placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now()));
             });
         }
-
     }
 }

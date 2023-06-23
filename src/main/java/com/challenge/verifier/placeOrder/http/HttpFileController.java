@@ -4,6 +4,8 @@ import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.domain.TimeProvider;
 import com.challenge.verifier.placeOrder.handler.PlaceOrderCommandHandler;
 import org.apache.log4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -29,15 +31,20 @@ public class HttpFileController {
         this.timeProvider = timeProvider;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/upload")
-    public void read(@RequestPart(name = "file", required = false) MultipartFile file) throws IOException {
-        logger.info("Receives file " + file.getName());
-        System.out.println("Receives file " + file.getOriginalFilename());
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/upload")
+    public ResponseEntity read(@RequestPart(name = "file") MultipartFile file) throws IOException {
+        logger.info("Receives file " + file.getOriginalFilename());
         InputStream inputStream = file.getInputStream();
         InputStreamReader in = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         BufferedReader bufferedReader = new BufferedReader(in);
-        bufferedReader.lines()
-                .forEach(line -> placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now())));
+        try {
+            bufferedReader.lines()
+                    .forEach(line -> placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now())));
+            return ResponseEntity.ok().body("Success");
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            return ResponseEntity.internalServerError().body("Unknown error: Please try again later");
+        }
 
     }
 }
