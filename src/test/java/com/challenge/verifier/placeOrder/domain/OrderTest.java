@@ -16,7 +16,7 @@ public class OrderTest {
     public static final Instant NOW = Instant.now();
 
     @Test
-    public void buildBuyOrderFromString(){
+    public void buildBuyOrderFromString() {
         Order order = OrderTestHelper.buildOrder();
         assertEquals(order.id(), Id.of(10000L));
         assertEquals(order.side(), Side.BUY);
@@ -25,67 +25,78 @@ public class OrderTest {
     }
 
     @Test
-    public void buildSellOrderFromString(){
+    public void buildSellOrderFromString() {
         Order order = Order.buildFrom("10000,S,98,25500", NOW);
         assertEquals(order.side(), Side.SELL);
     }
 
     @Test
-    public void throwsExceptionWhenSideIsInvalid(){
-        try{
+    public void convertsToPersistentModel() {
+        Order order = Order.buildFrom("10000,S,98,25500", NOW);
+        OrderPersistentModel orderPersistentModel = order.asPersistentModel();
+        assertEquals(orderPersistentModel.getPrice(), order.price().value());
+        assertEquals(orderPersistentModel.getTimestamp(), order.timestamp().toEpochMilli());
+        assertEquals(orderPersistentModel.getSide(), order.side().name());
+        assertEquals(orderPersistentModel.getId(), order.id().value());
+        assertEquals(orderPersistentModel.getQuantity(), order.quantity().value());
+    }
+
+    @Test
+    public void throwsExceptionWhenSideIsInvalid() {
+        try {
             Order.buildFrom("10000,H,98,25500", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Invalid order side", ex.getMessage());
         }
     }
 
     @Test
-    public void throwsExceptionWhenAtLeastOneFieldIsMissing(){
-        try{
+    public void throwsExceptionWhenAtLeastOneFieldIsMissing() {
+        try {
             Order.buildFrom("10000,H,25500", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Incomplete input", ex.getMessage());
         }
     }
 
     @Test
-    public void throwsExceptionWhenIdIsNull(){
-        try{
+    public void throwsExceptionWhenIdIsNull() {
+        try {
             Order.buildFrom(",S,98,25500", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Order Id is required", ex.getMessage());
         }
     }
 
     @Test
-    public void throwsExceptionWhenSideIsNull(){
-        try{
+    public void throwsExceptionWhenSideIsNull() {
+        try {
             Order.buildFrom("1000,,98,25500", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Side is required", ex.getMessage());
         }
     }
 
     @Test
-    public void throwsExceptionWhenPriceIsNull(){
-        try{
+    public void throwsExceptionWhenPriceIsNull() {
+        try {
             Order.buildFrom("1000,S,,25500", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Price is required", ex.getMessage());
         }
     }
 
     @Test
-    public void throwsExceptionWhenQuantityIsNull(){
-        try{
+    public void throwsExceptionWhenQuantityIsNull() {
+        try {
             Order.buildFrom("1000,S,98,", NOW);
             fail();
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             assertEquals("Incomplete input", ex.getMessage());
         }
     }

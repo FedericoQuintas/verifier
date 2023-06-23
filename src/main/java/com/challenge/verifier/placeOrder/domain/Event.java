@@ -10,7 +10,4 @@ public record Event(Order order, EventType eventType) {
         return new EventPersistentModel(order.id().value(), order.side().name(), order.quantity().value(), order.price().value(), eventType.name(), order.timestamp());
     }
 
-    public boolean isOnBuySide() {
-        return order.isOnBuySide();
-    }
 }

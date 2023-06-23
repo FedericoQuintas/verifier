@@ -12,7 +12,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("!test")
+@Profile({"default", "prod"})
 public class MySQLConfig {
 
     @Value("${MYSQL_USER}")

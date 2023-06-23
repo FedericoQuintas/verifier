@@ -6,7 +6,7 @@ import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
-import com.challenge.verifier.placeOrder.stream.PublisherResult;
+import com.challenge.verifier.placeOrder.stream.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class PlaceOrderCommandHandlerTest {
         publisher = mock(OrderPlacedPublisher.class);
         orderRepository = mock(OrderRepository.class);
         placeOrderCommandHandler = new PlaceOrderCommandHandler(publisher, orderRepository);
-        when(publisher.publish(any())).thenReturn(PublisherResult.ok());
+        when(publisher.publish(any())).thenReturn(Result.ok());
     }
 
     @Test
@@ -31,7 +31,7 @@ public class PlaceOrderCommandHandlerTest {
         Order order = OrderTestHelper.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         placeOrderCommandHandler.place(order);
-        verify(publisher).publish(event);
+        verify(publisher).publish(order.asPersistentModel());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class PlaceOrderCommandHandlerTest {
     public void itDoesNotStoreWhenPublishingFails() {
         Order order = OrderTestHelper.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
-        when(publisher.publish(any())).thenReturn(PublisherResult.error());
+        when(publisher.publish(any())).thenReturn(Result.error());
         placeOrderCommandHandler.place(order);
         verify(orderRepository, never()).saveAndFlush(event.asPersistentModel());
     }

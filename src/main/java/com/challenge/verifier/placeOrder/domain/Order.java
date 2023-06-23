@@ -40,7 +40,7 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
         return new RuntimeException(message);
     }
 
-    public boolean isOnBuySide() {
-        return Side.BUY.equals(side);
+    public OrderPersistentModel asPersistentModel() {
+        return new OrderPersistentModel(id().value(), side().name(), quantity().value(), price().value(), timestamp().toEpochMilli());
     }
 }

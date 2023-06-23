@@ -1,8 +1,8 @@
 package com.challenge.verifier.placeOrder.handler;
 
 import com.challenge.verifier.placeOrder.domain.Event;
-import com.challenge.verifier.placeOrder.domain.EventPersistentModel;
 import com.challenge.verifier.placeOrder.domain.EventType;
+import com.challenge.verifier.placeOrder.domain.Id;
 import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
@@ -23,17 +23,16 @@ public class PlaceOrderCommandHandler {
     }
 
     public void place(Order order) {
-        var event = Event.with(order, EventType.ORDER_PLACED);
-        var eventPersistentModel = event.asPersistentModel();
-        if (wasOrderAlreadyPlaced(eventPersistentModel)) {
+        if (wasOrderAlreadyPlaced(order.id())) {
             logger.info("Order " + order.id() + " already placed");
             return;
         }
-        var publisherResult = publisher.publish(event);
-        if (publisherResult.succeeded()) orderRepository.saveAndFlush(eventPersistentModel);
+        var publisherResult = publisher.publish(order.asPersistentModel());
+        if (publisherResult.succeeded())
+            orderRepository.saveAndFlush(Event.with(order, EventType.ORDER_PLACED).asPersistentModel());
     }
 
-    private boolean wasOrderAlreadyPlaced(EventPersistentModel eventPersistentModel) {
-        return orderRepository.existsById(eventPersistentModel.getId());
+    private boolean wasOrderAlreadyPlaced(Id id) {
+        return orderRepository.existsById(id.value());
     }
 }

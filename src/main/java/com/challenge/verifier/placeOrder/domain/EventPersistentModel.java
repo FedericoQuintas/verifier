@@ -1,21 +1,17 @@
 package com.challenge.verifier.placeOrder.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
-import org.springframework.data.redis.core.RedisHash;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity(name = "Order_Events")
 @Data
-@RedisHash("Event")
-public class EventPersistentModel implements Serializable {
+public class EventPersistentModel {
 
     protected EventPersistentModel() {
     }
