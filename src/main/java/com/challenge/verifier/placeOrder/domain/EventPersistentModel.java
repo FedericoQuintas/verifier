@@ -18,7 +18,7 @@ public class EventPersistentModel {
 
     @Id
     @Column(name = "id", unique = true, nullable = false)
-    public Long id;
+    private Long id;
     @Column(name = "price", nullable = false)
     private BigDecimal price;
     @Column(name = "side", nullable = false)
