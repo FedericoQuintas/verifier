@@ -32,8 +32,8 @@ public class MatchOrderCommandHandler {
         Side matchingSide = order.isOnBuySide() ? Side.SELL : Side.BUY;
         boolean matchingComplete = false;
         while (!matchingComplete) {
-            ReadQueueResult readQueueResult = ordersPriorityQueue.read(matchingSide);
-            if (readQueueResult.isEmpty()) {
+            ReadQueueResult readQueueResult = ordersPriorityQueue.readFrom(matchingSide);
+            if (readQueueResult.isEmpty() || !readQueueResult.succeeded()) {
                 addToPriorityQueue(order);
                 return;
             }

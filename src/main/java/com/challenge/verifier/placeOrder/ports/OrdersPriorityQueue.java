@@ -8,5 +8,5 @@ import com.challenge.verifier.placeOrder.stream.Result;
 public interface OrdersPriorityQueue {
     Result add(OrderPersistentModel order);
 
-    ReadQueueResult read(Side matchingSide);
+    ReadQueueResult readFrom(Side matchingSide);
 }

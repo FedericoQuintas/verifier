@@ -1,10 +1,13 @@
 package com.challenge.verifier.placeOrder.persistence;
 
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
+import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
 import com.challenge.verifier.placeOrder.domain.Side;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.placeOrder.stream.Result;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,8 +39,15 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     }
 
     @Override
-    public ReadQueueResult read(Side matchingSide) {
-        return null;
+    public ReadQueueResult readFrom(Side matchingSide) {
+        String key = Side.BUY.equals(matchingSide) ? BUY_KEY : SELL_KEY;
+        try {
+            OrderPersistentModel orderPersistentModel = new ObjectMapper().readValue((String) redisTemplate.opsForZSet().popMax(key).getValue(), OrderPersistentModel.class);
+            return ReadQueueResult.with(Order.buildFrom(orderPersistentModel));
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            return ReadQueueResult.error();
+        }
     }
 
     private void log(OrderPersistentModel order, Long orderId, String s) {
