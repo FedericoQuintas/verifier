@@ -1,9 +1,11 @@
 package com.challenge.verifier.config;
 
+import com.challenge.verifier.matchOrder.MatchOrderCommandHandler;
 import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueueListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,9 +53,12 @@ public class RedisPriorityQueueConfig {
         return template;
     }
 
+    @Autowired
+    private MatchOrderCommandHandler matchOrderCommandHandler;
+
     @Bean
     MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(redisTemplate()));
+        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(redisTemplate(), matchOrderCommandHandler));
     }
 
     @Bean

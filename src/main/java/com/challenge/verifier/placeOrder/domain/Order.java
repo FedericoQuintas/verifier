@@ -10,6 +10,11 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
     public static final int EXPECTED_FIELDS_AMOUNT = 4;
     private static final String SELL_INITIAL = "S";
 
+    public static Order buildFrom(OrderPersistentModel orderPersistentModel) {
+        return new Order(Id.of(orderPersistentModel.getId()), Side.valueOf(orderPersistentModel.getSide().toUpperCase()), Quantity.of(orderPersistentModel.getQuantity()), Price.of(orderPersistentModel.getPrice()),
+                Instant.ofEpochMilli(orderPersistentModel.getTimestamp()));
+    }
+
     public static Order buildFrom(String nextLine, Instant timestamp) {
         String[] parts = nextLine.split(COMMA);
         validateFieldsAmount(parts);
