@@ -3,7 +3,7 @@ package com.challenge.verifier.placeOrder.handler;
 import com.challenge.verifier.placeOrder.domain.Event;
 import com.challenge.verifier.placeOrder.domain.EventType;
 import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
+import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.stream.Result;
@@ -28,7 +28,7 @@ public class PlaceOrderCommandHandlerTest {
 
     @Test
     public void publishesOrderPlacedEvent() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         placeOrderCommandHandler.place(order);
         verify(publisher).publish(order.asPersistentModel());
@@ -36,7 +36,7 @@ public class PlaceOrderCommandHandlerTest {
 
     @Test
     public void storesEvent() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         placeOrderCommandHandler.place(order);
         verify(orderRepository).saveAndFlush(event.asPersistentModel());
@@ -44,7 +44,7 @@ public class PlaceOrderCommandHandlerTest {
 
     @Test
     public void discardsRepeatedOrder() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         when(orderRepository.existsById(event.asPersistentModel().getId())).thenReturn(true);
         placeOrderCommandHandler.place(order);
@@ -53,7 +53,7 @@ public class PlaceOrderCommandHandlerTest {
 
     @Test
     public void itDoesNotStoreWhenPublishingFails() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED);
         when(publisher.publish(any())).thenReturn(Result.error());
         placeOrderCommandHandler.place(order);

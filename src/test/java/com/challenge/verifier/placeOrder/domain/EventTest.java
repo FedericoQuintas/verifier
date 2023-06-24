@@ -1,6 +1,6 @@
 package com.challenge.verifier.placeOrder.domain;
 
-import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
+import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ public class EventTest {
 
     @Test
     public void convertsToPersistentModel() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         EventPersistentModel eventPersistentModel = new Event(order, EventType.ORDER_PLACED).asPersistentModel();
         assertEquals(eventPersistentModel.getId(), 10000L);
         assertEquals(eventPersistentModel.getSide(), Side.BUY.name());

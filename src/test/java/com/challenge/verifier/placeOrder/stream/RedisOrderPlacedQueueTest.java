@@ -2,7 +2,7 @@ package com.challenge.verifier.placeOrder.stream;
 
 import com.challenge.verifier.matchOrder.MatchOrderCommandHandler;
 import com.challenge.verifier.placeOrder.domain.*;
-import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
+import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,7 +34,7 @@ public class RedisOrderPlacedQueueTest {
 
     @Test
     void publishesAndConsumesOrderPlaceEvent() throws InterruptedException {
-        OrderPersistentModel orderPersistentModel = OrderTestHelper.buildOrder().asPersistentModel();
+        OrderPersistentModel orderPersistentModel = TestOrderBuilder.buildOrder().asPersistentModel();
         long timestamp = orderPersistentModel.getTimestamp();
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
 

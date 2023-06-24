@@ -1,23 +1,25 @@
 package com.challenge.verifier.placeOrder.domain;
 
-import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
+import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class OrderTest {
 
-
-    public static final Instant NOW = Instant.now();
+    public static final Instant NOW = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     @Test
     public void buildBuyOrderFromString() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         assertEquals(order.id(), Id.of(10000L));
         assertEquals(order.side(), Side.BUY);
         assertEquals(order.price(), Price.of(BigDecimal.valueOf(98)));
@@ -39,6 +41,29 @@ public class OrderTest {
         assertEquals(orderPersistentModel.getSide(), order.side().name());
         assertEquals(orderPersistentModel.getId(), order.id().value());
         assertEquals(orderPersistentModel.getQuantity(), order.quantity().value());
+    }
+
+    @Test
+    public void convertFromPersistentModel() {
+        Order order = TestOrderBuilder.buildOrder();
+        assertEquals(order, Order.buildFrom(order.asPersistentModel()));
+    }
+
+    @Test
+    public void returnsIsOnBuySide() {
+        assertTrue(new TestOrderBuilder().withSide(Side.BUY).build().isOnBuySide());
+        assertFalse(new TestOrderBuilder().withSide(Side.SELL).build().isOnBuySide());
+    }
+
+    @Test
+    public void hasRemainingQuantity() {
+        assertTrue(new TestOrderBuilder().withQuantity(100).build().reduceQuantity(Quantity.of(30)).hasRemainingQuantity());
+    }
+
+    @Test
+    public void reducesQuantity() {
+        Order order = new TestOrderBuilder().withQuantity(100).build().reduceQuantity(Quantity.of(30));
+        assertEquals(Quantity.of(70), order.quantity());
     }
 
     @Test

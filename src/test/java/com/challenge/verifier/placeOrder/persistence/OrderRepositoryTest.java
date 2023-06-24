@@ -4,7 +4,7 @@ import com.challenge.verifier.placeOrder.domain.Event;
 import com.challenge.verifier.placeOrder.domain.EventPersistentModel;
 import com.challenge.verifier.placeOrder.domain.EventType;
 import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.helper.OrderTestHelper;
+import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class OrderRepositoryTest {
 
     @Test
     public void storesAndFindsOrder() {
-        Order order = OrderTestHelper.buildOrder();
+        Order order = TestOrderBuilder.buildOrder();
         EventPersistentModel event = Event.with(order, EventType.ORDER_PLACED).asPersistentModel();
         repository.saveAndFlush(event);
         Optional<EventPersistentModel> eventOptional = repository.findById(event.getId());

@@ -48,4 +48,16 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
     public OrderPersistentModel asPersistentModel() {
         return new OrderPersistentModel(id().value(), side().name(), quantity().value(), price().value(), timestamp().toEpochMilli());
     }
+
+    public boolean isOnBuySide() {
+        return Side.BUY.equals(side);
+    }
+
+    public Order reduceQuantity(Quantity quantityToReduce) {
+        return new Order(id, side, quantity.minus(quantityToReduce), price, timestamp);
+    }
+
+    public boolean hasRemainingQuantity() {
+        return quantity.isMoreThan(Quantity.of(0));
+    }
 }

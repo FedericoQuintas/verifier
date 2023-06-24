@@ -1,6 +1,8 @@
 package com.challenge.verifier.placeOrder.persistence;
 
+import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
+import com.challenge.verifier.placeOrder.domain.Side;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.placeOrder.stream.Result;
 import org.apache.log4j.Logger;
@@ -31,6 +33,11 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
             log(order, orderId, " could not be added to the queue with quantity: ");
             return Result.error();
         }
+    }
+
+    @Override
+    public ReadQueueResult read(Side matchingSide) {
+        return null;
     }
 
     private void log(OrderPersistentModel order, Long orderId, String s) {

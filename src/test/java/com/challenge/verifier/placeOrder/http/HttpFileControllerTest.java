@@ -20,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -32,7 +33,7 @@ public class HttpFileControllerTest {
 
     public static final String UPLOAD = "/upload";
     public static final int ORDERS_IN_TEST_FILE = 6;
-    public static final Instant NOW = Instant.now();
+    public static final Instant NOW = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     @InjectMocks
     HttpFileControllerTest httpFileController;
