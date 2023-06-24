@@ -31,8 +31,8 @@ public class RedisOrderPlacedQueueListener implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         try {
             byte[] serialized = message.getBody();
-            logger.info("Received " + serialized);
             OrderPersistentModel orderPersistentModel = new ObjectMapper().readValue(serialized, OrderPersistentModel.class);
+            logger.info("Received " + orderPersistentModel.getId());
             matchOrderCommandHandler.match(Order.buildFrom(orderPersistentModel));
         } catch (IOException e) {
             logger.error(e.getMessage());

@@ -7,7 +7,7 @@ target/
 mvnw
 mvnw.cmd
 test1.txt
-./data/dump.rdb
+./data/*
 
 ### STS ###
 .apt_generated

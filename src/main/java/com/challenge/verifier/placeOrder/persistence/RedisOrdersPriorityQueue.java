@@ -41,12 +41,17 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     public ReadQueueResult readFrom(Side matchingSide) {
         String key = Side.BUY.equals(matchingSide) ? BUY_KEY : SELL_KEY;
         try {
+            if (queueIsEmpty(key)) return ReadQueueResult.empty();
             OrderPersistentModel orderPersistentModel = new ObjectMapper().readValue((String) redisTemplate.opsForZSet().popMax(key).getValue(), OrderPersistentModel.class);
             return ReadQueueResult.with(Order.buildFrom(orderPersistentModel));
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             return ReadQueueResult.error();
         }
+    }
+
+    private boolean queueIsEmpty(String key) {
+        return redisTemplate.opsForZSet().size(key) == 0;
     }
 
     private void log(OrderPersistentModel order, Long orderId, String s) {

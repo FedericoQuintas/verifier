@@ -78,7 +78,7 @@ public class MatchOrderCommandHandler {
     }
 
     private void addToPriorityQueue(Order order) {
-        logger.info("Order " + order.id().value() + " is added to the priority queue");
+        logger.debug("Order " + order.id().value() + " will be added to the priority queue");
         ordersPriorityQueue.add(order.asPersistentModel());
     }
 
