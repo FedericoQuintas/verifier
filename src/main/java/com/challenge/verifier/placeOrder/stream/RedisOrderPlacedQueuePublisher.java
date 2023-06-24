@@ -24,7 +24,6 @@ public class RedisOrderPlacedQueuePublisher implements OrderPlacedPublisher {
     @Override
     public Result publish(OrderPersistentModel order) {
         try {
-            logger.info("Will publish " + order.getId());
             redisTemplate.convertAndSend(topic.getTopic(), order);
             logger.info("Published " + order.getId());
             return Result.ok();

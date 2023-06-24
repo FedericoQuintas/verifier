@@ -12,6 +12,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 @Service
 public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
 
@@ -67,7 +70,9 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
         logger.info("Order " + orderId + s + order.getQuantity());
     }
 
+    // Redis allows only one field for the score: I implemented a trick to combine price and timestamp asc/desc
     private Double score(OrderPersistentModel order) {
-        return order.getPrice().doubleValue();
+        String value = order.getPrice() + "." + (Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli() - order.getTimestamp());
+        return Double.valueOf(value);
     }
 }
