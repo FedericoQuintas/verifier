@@ -7,18 +7,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
 
 public class RedisOrderPlacedQueueListener implements MessageListener {
 
     private Logger logger = Logger.getLogger(RedisOrderPlacedQueueListener.class);
-    private RedisTemplate redisTemplate;
     private MatchOrderCommandHandler matchOrderCommandHandler;
 
-    public RedisOrderPlacedQueueListener(RedisTemplate redisTemplate, MatchOrderCommandHandler matchOrderCommandHandler) {
-        this.redisTemplate = redisTemplate;
+    public RedisOrderPlacedQueueListener(MatchOrderCommandHandler matchOrderCommandHandler) {
         this.matchOrderCommandHandler = matchOrderCommandHandler;
     }
 

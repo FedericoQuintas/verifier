@@ -45,7 +45,7 @@ public class RedisTestConfig {
 
     @Bean
     MessageListenerAdapter messageListenerAdapter() {
-        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(redisTemplate(), matchOrderCommandHandler));
+        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(matchOrderCommandHandler));
     }
 
     @Bean

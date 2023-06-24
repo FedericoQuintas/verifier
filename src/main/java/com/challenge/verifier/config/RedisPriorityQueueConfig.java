@@ -58,7 +58,7 @@ public class RedisPriorityQueueConfig {
 
     @Bean
     MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(redisTemplate(), matchOrderCommandHandler));
+        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(matchOrderCommandHandler));
     }
 
     @Bean
