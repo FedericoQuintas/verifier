@@ -1,21 +1,13 @@
 package com.challenge.verifier;
 
-import com.challenge.verifier.placeOrder.ports.OrderStreamReader;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.io.IOException;
 
 @SpringBootApplication(exclude = {RedisRepositoriesAutoConfiguration.class})
 public class VerifierApplication {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         SpringApplication.run(VerifierApplication.class, args);
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(VerifierApplication.class);
-        OrderStreamReader streamReader = ctx.getBean(OrderStreamReader.class);
-        if (args.length > 0) streamReader.read(args[0]);
     }
 }

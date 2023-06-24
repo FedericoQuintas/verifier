@@ -11,10 +11,12 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Profile("!test")
+@Service
+@Profile({"default", "prod"})
 public class RedisOrderPlacedQueueListener implements MessageListener {
 
     private Logger logger = Logger.getLogger(RedisOrderPlacedQueueListener.class);
