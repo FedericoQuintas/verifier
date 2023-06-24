@@ -52,7 +52,6 @@ public class MatchOrderCommandHandlerTest {
         verify(ordersPriorityQueue, never()).add(any());
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
-
     }
 
     @Test
@@ -65,5 +64,19 @@ public class MatchOrderCommandHandlerTest {
         verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
+        verify(ordersPriorityQueue, never()).add(sellOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
+    }
+
+    @Test
+    public void whenBuyOrderMatchesPriceAndItsFullyFilledAddsEventsAndAddsTheOtherOfferToPriorityQueue() {
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(20).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(50).build();
+        when(ordersPriorityQueue.read(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
+
+        matchOrderCommandHandler.match(buyOrder);
+        verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        verify(ordersPriorityQueue).add(sellOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
+        verify(ordersPriorityQueue, never()).add(buyOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
     }
 }
