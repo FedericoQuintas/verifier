@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -32,5 +33,7 @@ public class OrderRepositoryTest {
         repository.saveAndFlush(event);
         Optional<EventPersistentModel> eventOptional = repository.findById(event.getId());
         assertEquals(eventOptional.get().getId(), event.getId());
+        List<EventPersistentModel> eventsByOrderId = repository.findAllById(List.of(event.getId()));
+        assertEquals(1, eventsByOrderId.size());
     }
 }
