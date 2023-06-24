@@ -9,6 +9,7 @@ import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -78,5 +79,31 @@ public class MatchOrderCommandHandlerTest {
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(sellOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
         verify(ordersPriorityQueue, never()).add(buyOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
+    }
+
+    @Test
+    public void whenSellOrderIsHigherThanHighestBuyOrderThenOnlyAddsToPriorityQueue() {
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(BigDecimal.valueOf(50)).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(BigDecimal.valueOf(100)).build();
+        when(ordersPriorityQueue.read(Side.BUY)).thenReturn(ReadQueueResult.with(buyOrder));
+
+        matchOrderCommandHandler.match(sellOrder);
+
+        verify(orderRepository, never()).saveAndFlush(any());
+        verify(ordersPriorityQueue).add(sellOrder.asPersistentModel());
+        verify(ordersPriorityQueue).add(buyOrder.asPersistentModel());
+    }
+
+    @Test
+    public void whenBuyOrderIsLowerThanHighestSellOrderThenOnlyAddsToPriorityQueue() {
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(BigDecimal.valueOf(50)).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(BigDecimal.valueOf(100)).build();
+        when(ordersPriorityQueue.read(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
+
+        matchOrderCommandHandler.match(buyOrder);
+
+        verify(orderRepository, never()).saveAndFlush(any());
+        verify(ordersPriorityQueue).add(sellOrder.asPersistentModel());
+        verify(ordersPriorityQueue).add(buyOrder.asPersistentModel());
     }
 }

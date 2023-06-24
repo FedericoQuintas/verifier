@@ -31,4 +31,9 @@ public class TestOrderBuilder {
         this.quantity = quantity;
         return this;
     }
+
+    public TestOrderBuilder withPrice(BigDecimal price) {
+        this.price = price;
+        return this;
+    }
 }

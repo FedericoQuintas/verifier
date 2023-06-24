@@ -7,7 +7,8 @@ public record Price(BigDecimal value) {
         return new Price(value);
     }
 
-    public Double asDouble() {
-        return value().doubleValue();
+    public boolean isEqualOrGreaterThan(Price price) {
+        return value.compareTo(price.value) >= 0;
     }
+
 }
