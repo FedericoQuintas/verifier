@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MatchOrderCommandHandler {
-    public void match(Order buildFrom) {
+    public void match(Order order) {
 
     }
 }

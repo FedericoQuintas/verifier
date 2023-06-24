@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("redis-test")
-public class RedisOrderPlacedQueuePublisherTest {
+public class RedisOrderPlacedQueueTest {
 
     public static final int MILLIS = 400;
     public static final Price PRICE = Price.of(BigDecimal.valueOf(98));
