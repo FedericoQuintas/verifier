@@ -1,8 +1,7 @@
 package com.challenge.verifier.placeOrder;
 
 import com.challenge.verifier.matchOrder.MatchOrderCommandHandler;
-import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
-import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueuePublisher;
+import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueueListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -55,8 +55,8 @@ public class RedisTestConfig {
     }
 
     @Bean
-    public OrderPlacedPublisher publisher() {
-        return new RedisOrderPlacedQueuePublisher(redisTemplate(), topic());
+    MessageListener listener() {
+        return new RedisOrderPlacedQueueListener(matchOrderCommandHandler, redisContainer(), topic());
     }
 
     @Container
