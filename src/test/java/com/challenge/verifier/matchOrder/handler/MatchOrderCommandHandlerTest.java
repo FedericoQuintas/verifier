@@ -36,6 +36,17 @@ public class MatchOrderCommandHandlerTest {
     }
 
     @Test
+    public void ifOrderAlreadyFilledThenDoesNothing() {
+        Order order = new TestOrderBuilder().build();
+        Event event = Event.with(order, EventType.ORDER_FILLED, Instant.now());
+        when(orderRepository.findAllById(List.of(order.id().value()))).thenReturn(List.of(event.asPersistentModel()));
+
+        matchOrderCommandHandler.match(order);
+
+        verify(ordersPriorityQueue, never()).read(any());
+    }
+
+    @Test
     public void whenOtherSideQueueIsEmptyAddsOrderAsItIs() {
         Order order = TestOrderBuilder.buildOrder();
         when(ordersPriorityQueue.read(Side.SELL)).thenReturn(ReadQueueResult.empty());

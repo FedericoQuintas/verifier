@@ -39,4 +39,7 @@ public class EventPersistentModel {
         this.event_time = event_time;
     }
 
+    public boolean isOrderFilled() {
+        return EventType.ORDER_FILLED.name().equals(event_type);
+    }
 }

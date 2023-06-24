@@ -7,6 +7,8 @@ import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MatchOrderCommandHandler {
 
@@ -22,6 +24,11 @@ public class MatchOrderCommandHandler {
     }
 
     public void match(Order order) {
+        List<EventPersistentModel> orderEvents = orderRepository.findAllById(List.of(order.id().value()));
+        if (Event.isOrderFilled(orderEvents)) {
+            logger.info("Order " + order.id().value() + "was already filled");
+            return;
+        }
         Side matchingSide = order.isOnBuySide() ? Side.SELL : Side.BUY;
         boolean matchingComplete = false;
         while (!matchingComplete) {
@@ -32,6 +39,7 @@ public class MatchOrderCommandHandler {
             }
             Order matchingOrder = readQueueResult.order();
             if (pricesMatch(order, matchingOrder)) {
+                logger.info("Order " + order.id().value() + " matches order " + matchingOrder.id().value());
                 Quantity matchingQuantity = calculateMatchingQuantity(order, matchingOrder);
                 matchingOrder = matchingOrder.reduceQuantity(matchingQuantity);
                 order = order.reduceQuantity(matchingQuantity);
@@ -70,6 +78,7 @@ public class MatchOrderCommandHandler {
     }
 
     private void addToPriorityQueue(Order order) {
+        logger.info("Order " + order.id().value() + "is added to the priority queue");
         ordersPriorityQueue.add(order.asPersistentModel());
     }
 
