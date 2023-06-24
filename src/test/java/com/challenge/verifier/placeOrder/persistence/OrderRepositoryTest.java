@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +28,7 @@ public class OrderRepositoryTest {
     @Test
     public void storesAndFindsOrder() {
         Order order = TestOrderBuilder.buildOrder();
-        EventPersistentModel event = Event.with(order, EventType.ORDER_PLACED).asPersistentModel();
+        EventPersistentModel event = Event.with(order, EventType.ORDER_PLACED, Instant.now()).asPersistentModel();
         repository.saveAndFlush(event);
         Optional<EventPersistentModel> eventOptional = repository.findById(event.getId());
         assertEquals(eventOptional.get().getId(), event.getId());

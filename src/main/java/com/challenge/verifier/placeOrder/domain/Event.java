@@ -1,13 +1,15 @@
 package com.challenge.verifier.placeOrder.domain;
 
-public record Event(Order order, EventType eventType) {
+import java.time.Instant;
 
-    public static Event with(Order order, EventType eventType) {
-        return new Event(order, eventType);
+public record Event(Order order, EventType eventType, Instant timestamp) {
+
+    public static Event with(Order order, EventType eventType, Instant timestamp) {
+        return new Event(order, eventType, timestamp);
     }
 
     public EventPersistentModel asPersistentModel() {
-        return new EventPersistentModel(order.id().value(), order.side().name(), order.quantity().value(), order.price().value(), eventType.name(), order.timestamp());
+        return new EventPersistentModel(order.id().value(), order.side().name(), order.quantity().value(), order.price().value(), eventType.name(), timestamp);
     }
 
 }

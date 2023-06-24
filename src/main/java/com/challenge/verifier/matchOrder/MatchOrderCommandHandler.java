@@ -13,10 +13,12 @@ public class MatchOrderCommandHandler {
     private Logger logger = Logger.getLogger(MatchOrderCommandHandler.class);
     private OrdersPriorityQueue ordersPriorityQueue;
     private OrderRepository orderRepository;
+    private TimeProvider timeProvider;
 
-    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderRepository orderRepository) {
+    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderRepository orderRepository, TimeProvider timeProvider) {
         this.ordersPriorityQueue = ordersPriorityQueue;
         this.orderRepository = orderRepository;
+        this.timeProvider = timeProvider;
     }
 
     public void match(Order order) {
@@ -44,6 +46,6 @@ public class MatchOrderCommandHandler {
     }
 
     private Event buildEvent(Order order, EventType eventType) {
-        return Event.with(order, eventType);
+        return Event.with(order, eventType, timeProvider.now());
     }
 }

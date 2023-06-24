@@ -1,9 +1,6 @@
 package com.challenge.verifier.placeOrder.handler;
 
-import com.challenge.verifier.placeOrder.domain.Event;
-import com.challenge.verifier.placeOrder.domain.EventType;
-import com.challenge.verifier.placeOrder.domain.Id;
-import com.challenge.verifier.placeOrder.domain.Order;
+import com.challenge.verifier.placeOrder.domain.*;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import org.apache.log4j.Logger;
@@ -15,11 +12,12 @@ public class PlaceOrderCommandHandler {
     private OrderPlacedPublisher publisher;
     private OrderRepository orderRepository;
     private Logger logger = Logger.getLogger(PlaceOrderCommandHandler.class);
+    private TimeProvider timeProvider;
 
-
-    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, OrderRepository orderRepository) {
+    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, OrderRepository orderRepository, TimeProvider timeProvider) {
         this.publisher = publisher;
         this.orderRepository = orderRepository;
+        this.timeProvider = timeProvider;
     }
 
     public void place(Order order) {
@@ -29,7 +27,7 @@ public class PlaceOrderCommandHandler {
         }
         var publisherResult = publisher.publish(order.asPersistentModel());
         if (publisherResult.succeeded())
-            orderRepository.saveAndFlush(Event.with(order, EventType.ORDER_PLACED).asPersistentModel());
+            orderRepository.saveAndFlush(Event.with(order, EventType.ORDER_PLACED, timeProvider.now()).asPersistentModel());
     }
 
     private boolean wasOrderAlreadyPlaced(Id id) {
