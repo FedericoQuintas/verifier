@@ -2,7 +2,6 @@ package com.challenge.verifier.placeOrder;
 
 import com.challenge.verifier.matchOrder.MatchOrderCommandHandler;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
-import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueueListener;
 import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueuePublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,14 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -42,11 +39,6 @@ public class RedisTestConfig {
 
     @Autowired
     private MatchOrderCommandHandler matchOrderCommandHandler;
-
-    @Bean
-    MessageListenerAdapter messageListenerAdapter() {
-        return new MessageListenerAdapter(new RedisOrderPlacedQueueListener(matchOrderCommandHandler));
-    }
 
     @Bean
     public RedisTemplate redisTemplate() {
@@ -85,12 +77,10 @@ public class RedisTestConfig {
     }
 
     @Bean
-    @Primary
     RedisMessageListenerContainer redisContainer() {
         RedisMessageListenerContainer container
                 = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory());
-        container.addMessageListener(messageListenerAdapter(), topic());
         return container;
     }
 

@@ -17,8 +17,8 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
 
     private Logger logger = Logger.getLogger(RedisOrdersPriorityQueue.class);
     private RedisTemplate redisTemplate;
-    private static final String BUY_KEY = "BuyRateByPriceAndTime|";
-    private static final String SELL_KEY = "SellRateByPriceAndTime|";
+    private static final String BUY_KEY = "BuyRateByPriceAndTime";
+    private static final String SELL_KEY = "SellRateByPriceAndTime";
 
     public RedisOrdersPriorityQueue(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -26,14 +26,13 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
 
     @Override
     public Result add(OrderPersistentModel order) {
-        Long orderId = order.getId();
-        String key = order.isOnBuySide() ? BUY_KEY + orderId : SELL_KEY + orderId;
+        String key = order.isOnBuySide() ? BUY_KEY : SELL_KEY;
         Boolean result = redisTemplate.opsForZSet().add(key, order, score(order));
         if (result) {
-            log(order, orderId, " was added to the queue with quantity: ");
+            log(order, order.getId(), " was added to the queue with quantity: ");
             return Result.ok();
         } else {
-            log(order, orderId, " could not be added to the queue with quantity: ");
+            log(order, order.getId(), " could not be added to the queue with quantity: ");
             return Result.error();
         }
     }
