@@ -6,10 +6,10 @@ import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
 import com.challenge.verifier.placeOrder.domain.Side;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.placeOrder.stream.Result;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,13 +41,25 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     public ReadQueueResult readFrom(Side matchingSide) {
         String key = Side.BUY.equals(matchingSide) ? BUY_KEY : SELL_KEY;
         try {
-            if (queueIsEmpty(key)) return ReadQueueResult.empty();
-            OrderPersistentModel orderPersistentModel = new ObjectMapper().readValue((String) redisTemplate.opsForZSet().popMax(key).getValue(), OrderPersistentModel.class);
+            ZSetOperations.TypedTuple typedTuple = fetchTuple(key, matchingSide);
+            if (!canRetrieveValuesFromQueue(key, typedTuple)) return ReadQueueResult.empty();
+            OrderPersistentModel orderPersistentModel = new ObjectMapper().convertValue(typedTuple.getValue(), OrderPersistentModel.class);
             return ReadQueueResult.with(Order.buildFrom(orderPersistentModel));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             return ReadQueueResult.error();
         }
+    }
+
+    private ZSetOperations.TypedTuple fetchTuple(String key, Side matchingSide) {
+        if (Side.BUY.equals(matchingSide))
+            return redisTemplate.opsForZSet().popMax(key);
+        else
+            return redisTemplate.opsForZSet().popMin(key);
+    }
+
+    private boolean canRetrieveValuesFromQueue(String key, ZSetOperations.TypedTuple typedTuple) {
+        return queueIsEmpty(key) || typedTuple == null;
     }
 
     private boolean queueIsEmpty(String key) {

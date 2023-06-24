@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -34,8 +35,16 @@ public class EventTest {
     }
 
     @Test
-    public void isOrderFilled() {
-        assertTrue(new Event(order, EventType.ORDER_FILLED, now).asPersistentModel().isOrderFilled());
-        assertFalse(new Event(order, EventType.ORDER_PLACED, now).asPersistentModel().isOrderFilled());
+    public void isOrderPlaced() {
+        assertTrue(new Event(order, EventType.ORDER_PLACED, now).asPersistentModel().isOrderPlaced());
+        assertFalse(new Event(order, EventType.ORDER_FILLED, now).asPersistentModel().isOrderPlaced());
+    }
+
+    @Test
+    public void wasAlreadyProcessed() {
+        EventPersistentModel placedEvent = new Event(order, EventType.ORDER_PLACED, now).asPersistentModel();
+        EventPersistentModel partiallyFilledEvent = new Event(order, EventType.ORDER_PARTIALLY_FILLED, now).asPersistentModel();
+        assertFalse(Event.wasAlreadyProcessed(List.of(placedEvent)));
+        assertTrue(Event.wasAlreadyProcessed(List.of(partiallyFilledEvent)));
     }
 }

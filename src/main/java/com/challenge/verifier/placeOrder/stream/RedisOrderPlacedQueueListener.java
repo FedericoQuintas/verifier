@@ -23,6 +23,7 @@ public class RedisOrderPlacedQueueListener implements MessageListener {
     private MatchOrderCommandHandler matchOrderCommandHandler;
 
     public RedisOrderPlacedQueueListener(MatchOrderCommandHandler matchOrderCommandHandler, RedisMessageListenerContainer container, ChannelTopic topic) {
+        logger.info("----LOGUEA");
         this.matchOrderCommandHandler = matchOrderCommandHandler;
         setUpListener(container, topic);
     }

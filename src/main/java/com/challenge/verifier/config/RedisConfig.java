@@ -13,8 +13,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 @Configuration
 @Profile({"default", "prod"})
@@ -43,9 +42,10 @@ public class RedisConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.registerModule(new JavaTimeModule());
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
+        template.setKeySerializer(new Jackson2JsonRedisSerializer(Object.class));
+        template.setHashValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
+        template.setHashKeySerializer(new Jackson2JsonRedisSerializer(Object.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer(Object.class));
         return template;
     }
 

@@ -9,8 +9,8 @@ public record Event(Order order, EventType eventType, Instant timestamp) {
         return new Event(order, eventType, timestamp);
     }
 
-    public static boolean isOrderFilled(List<EventPersistentModel> orderEvents) {
-        return orderEvents.stream().anyMatch(EventPersistentModel::isOrderFilled);
+    public static boolean wasAlreadyProcessed(List<EventPersistentModel> orderEvents) {
+        return orderEvents.stream().anyMatch(event -> !event.isOrderPlaced());
     }
 
     public EventPersistentModel asPersistentModel() {

@@ -6,12 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.io.IOException;
 
 @SpringBootApplication(exclude = {RedisRepositoriesAutoConfiguration.class})
-@EnableJpaRepositories
 public class VerifierApplication {
 
     public static void main(String[] args) throws IOException {

@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.Thread.sleep;
+
 @RestController
 public class HttpFileController {
 
@@ -34,17 +36,33 @@ public class HttpFileController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/upload")
     public ResponseEntity read(@RequestPart(name = "file") MultipartFile file) throws IOException {
         logger.info("Receives file " + file.getOriginalFilename());
-        InputStream inputStream = file.getInputStream();
-        InputStreamReader in = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-        BufferedReader bufferedReader = new BufferedReader(in);
+        BufferedReader bufferedReader = setUpBufferReader(file);
         try {
-            bufferedReader.lines()
-                    .forEach(line -> placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now())));
-            return ResponseEntity.ok().body("Success");
+            return placeOrders(bufferedReader);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             return ResponseEntity.internalServerError().body("Unknown error: Please try again later");
         }
 
+    }
+
+    private static BufferedReader setUpBufferReader(MultipartFile file) throws IOException {
+        InputStream inputStream = file.getInputStream();
+        InputStreamReader in = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(in);
+        return bufferedReader;
+    }
+
+    private ResponseEntity<String> placeOrders(BufferedReader bufferedReader) {
+        bufferedReader.lines()
+                .forEach(line -> {
+                    try {
+                        sleep(200);
+                        placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now()));
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage());
+                    }
+                });
+        return ResponseEntity.ok().body("Success");
     }
 }

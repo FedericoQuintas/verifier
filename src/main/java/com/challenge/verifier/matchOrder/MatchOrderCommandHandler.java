@@ -25,8 +25,8 @@ public class MatchOrderCommandHandler {
 
     public void match(Order order) {
         List<EventPersistentModel> orderEvents = orderRepository.findAllById(List.of(order.id().value()));
-        if (Event.isOrderFilled(orderEvents)) {
-            logger.info("Order " + order.id().value() + "was already filled");
+        if (Event.wasAlreadyProcessed(orderEvents)) {
+            logger.info("Order " + order.id().value() + "was already processed");
             return;
         }
         Side matchingSide = order.isOnBuySide() ? Side.SELL : Side.BUY;
