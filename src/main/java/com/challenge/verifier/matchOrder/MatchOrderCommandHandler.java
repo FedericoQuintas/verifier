@@ -26,7 +26,7 @@ public class MatchOrderCommandHandler {
     public void match(Order order) {
         List<EventPersistentModel> orderEvents = orderRepository.findAllById(List.of(order.id().value()));
         if (Event.wasAlreadyProcessed(orderEvents)) {
-            logger.info("Order " + order.id().value() + "was already processed");
+            logger.info("Order " + order.id().value() + " was already processed");
             return;
         }
         Side matchingSide = order.isOnBuySide() ? Side.SELL : Side.BUY;
@@ -34,6 +34,7 @@ public class MatchOrderCommandHandler {
         while (!matchingComplete) {
             ReadQueueResult readQueueResult = ordersPriorityQueue.readFrom(matchingSide);
             if (readQueueResult.isEmpty() || !readQueueResult.succeeded()) {
+                logger.info("It didn't find result for " + order.id().value());
                 addToPriorityQueue(order);
                 return;
             }

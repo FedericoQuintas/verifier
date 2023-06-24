@@ -17,8 +17,8 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
 
     private Logger logger = Logger.getLogger(RedisOrdersPriorityQueue.class);
     private RedisTemplate redisTemplate;
-    private static final String BUY_KEY = "BuyRateByPriceAndTime";
-    private static final String SELL_KEY = "SellRateByPriceAndTime";
+    private static final String BUY_KEY = "BuyQueue";
+    private static final String SELL_KEY = "SellQueue";
 
     public RedisOrdersPriorityQueue(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -29,10 +29,10 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
         String key = order.isOnBuySide() ? BUY_KEY : SELL_KEY;
         Boolean result = redisTemplate.opsForZSet().add(key, order, score(order));
         if (result) {
-            log(order, order.getId(), " was added to the queue with quantity: ");
+            log(order, order.getId(), " was added to the queue " + key + " with quantity: ");
             return Result.ok();
         } else {
-            log(order, order.getId(), " could not be added to the queue with quantity: ");
+            log(order, order.getId(), " could not be added to the queue " + key + " with quantity: ");
             return Result.error();
         }
     }
@@ -42,7 +42,7 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
         String key = Side.BUY.equals(matchingSide) ? BUY_KEY : SELL_KEY;
         try {
             ZSetOperations.TypedTuple typedTuple = fetchTuple(key, matchingSide);
-            if (!canRetrieveValuesFromQueue(key, typedTuple)) return ReadQueueResult.empty();
+            if (queueIsEmpty(key, typedTuple)) return ReadQueueResult.empty();
             OrderPersistentModel orderPersistentModel = new ObjectMapper().convertValue(typedTuple.getValue(), OrderPersistentModel.class);
             return ReadQueueResult.with(Order.buildFrom(orderPersistentModel));
         } catch (Exception e) {
@@ -52,18 +52,15 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     }
 
     private ZSetOperations.TypedTuple fetchTuple(String key, Side matchingSide) {
-        if (Side.BUY.equals(matchingSide))
+        if (Side.BUY.equals(matchingSide)) {
             return redisTemplate.opsForZSet().popMax(key);
-        else
+        } else
             return redisTemplate.opsForZSet().popMin(key);
     }
 
-    private boolean canRetrieveValuesFromQueue(String key, ZSetOperations.TypedTuple typedTuple) {
-        return queueIsEmpty(key) || typedTuple == null;
-    }
-
-    private boolean queueIsEmpty(String key) {
-        return redisTemplate.opsForZSet().size(key) == 0;
+    private boolean queueIsEmpty(String key, ZSetOperations.TypedTuple typedTuple) {
+        if (typedTuple == null) logger.info("queue " + key + " is empty");
+        return typedTuple == null;
     }
 
     private void log(OrderPersistentModel order, Long orderId, String s) {
@@ -71,6 +68,6 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     }
 
     private Double score(OrderPersistentModel order) {
-        return order.getPrice().doubleValue() - order.getTimestamp();
+        return order.getPrice().doubleValue();
     }
 }

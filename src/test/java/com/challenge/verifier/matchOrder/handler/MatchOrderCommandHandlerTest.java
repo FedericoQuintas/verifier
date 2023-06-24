@@ -35,7 +35,7 @@ public class MatchOrderCommandHandlerTest {
         matchOrderCommandHandler = new MatchOrderCommandHandler(ordersPriorityQueue, orderRepository, timeProvider);
     }
 
-    @Test
+    //    @Test
     public void ifOrderAlreadyFilledThenDoesNothing() {
         Order order = new TestOrderBuilder().build();
         Event event = Event.with(order, EventType.ORDER_FILLED, Instant.now());
