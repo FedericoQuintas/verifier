@@ -57,7 +57,7 @@ public class HttpFileController {
         bufferedReader.lines()
                 .forEach(line -> {
                     try {
-                        sleep(200);
+                        sleep(300);
                         placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now()));
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage());

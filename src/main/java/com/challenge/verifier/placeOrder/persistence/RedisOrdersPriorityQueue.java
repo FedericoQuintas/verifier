@@ -70,9 +70,13 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
         logger.info("Order " + orderId + s + order.getQuantity());
     }
 
-    // Redis allows only one field for the score: I implemented a trick to combine price and timestamp asc/desc
+    // Redis allows only one field for the score: I implemented a trick to combine price and timestamp asc/desc to make popMax work correctly
     private Double score(OrderPersistentModel order) {
-        String value = order.getPrice() + "." + (Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli() - order.getTimestamp());
-        return Double.valueOf(value);
+        if (order.isOnBuySide()) {
+            String value = order.getPrice() + "." + (Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli() - order.getTimestamp());
+            return Double.valueOf(value);
+        } else {
+            return Double.valueOf(order.getPrice() + "." + order.getTimestamp());
+        }
     }
 }
