@@ -23,21 +23,45 @@ public class MatchOrderCommandHandler {
 
     public void match(Order order) {
         Side matchingSide = order.isOnBuySide() ? Side.SELL : Side.BUY;
-        ReadQueueResult readQueueResult = ordersPriorityQueue.read(matchingSide);
-        if (readQueueResult.isEmpty()) {
-            addToPriorityQueue(order);
-            return;
+        boolean matchingComplete = false;
+        while (!matchingComplete) {
+            ReadQueueResult readQueueResult = ordersPriorityQueue.read(matchingSide);
+            if (readQueueResult.isEmpty()) {
+                addToPriorityQueue(order);
+                return;
+            }
+            Order matchingOrder = readQueueResult.order();
+            if (pricesMatch(order, matchingOrder)) {
+                Quantity matchingQuantity = calculateMatchingQuantity(order, matchingOrder);
+                matchingOrder = matchingOrder.reduceQuantity(matchingQuantity);
+                order = order.reduceQuantity(matchingQuantity);
+                matchingComplete = updateOrders(order, matchingOrder);
+            } else {
+                returnOrdersToPriorityQueue(order, matchingOrder);
+                return;
+            }
         }
-        Order matchingOrder = readQueueResult.order();
-        if (pricesMatch(order, matchingOrder)) {
-            Quantity matchingQuantity = Quantity.of(Math.min(order.quantity().value(), matchingOrder.quantity().value()));
-            matchingOrder = matchingOrder.reduceQuantity(matchingQuantity);
-            order = order.reduceQuantity(matchingQuantity);
-            updateOrder(order);
-            updateOrder(matchingOrder);
+    }
+
+    private static Quantity calculateMatchingQuantity(Order order, Order matchingOrder) {
+        return Quantity.of(Math.min(order.quantity().value(), matchingOrder.quantity().value()));
+    }
+
+    private boolean updateOrders(Order order, Order matchingOrder) {
+        boolean matchingComplete = false;
+        if (order.hasRemainingQuantity()) {
+            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
         } else {
-            returnOrdersToPriorityQueue(order, matchingOrder);
+            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_FILLED).asPersistentModel());
+            matchingComplete = true;
         }
+        if (matchingOrder.hasRemainingQuantity()) {
+            orderRepository.saveAndFlush(buildEvent(matchingOrder, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
+            addToPriorityQueue(matchingOrder);
+        } else {
+            orderRepository.saveAndFlush(buildEvent(matchingOrder, EventType.ORDER_FILLED).asPersistentModel());
+        }
+        return matchingComplete;
     }
 
     private void returnOrdersToPriorityQueue(Order order, Order matchingOrder) {
@@ -54,15 +78,6 @@ public class MatchOrderCommandHandler {
             return order.price().isEqualOrGreaterThan(matchingOrder.price());
         } else {
             return matchingOrder.price().isEqualOrGreaterThan(order.price());
-        }
-    }
-
-    private void updateOrder(Order order) {
-        if (order.hasRemainingQuantity()) {
-            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
-            addToPriorityQueue(order);
-        } else {
-            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_FILLED).asPersistentModel());
         }
     }
 

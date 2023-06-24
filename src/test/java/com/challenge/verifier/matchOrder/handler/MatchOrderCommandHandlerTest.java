@@ -8,11 +8,14 @@ import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class MatchOrderCommandHandlerTest {
@@ -59,7 +62,7 @@ public class MatchOrderCommandHandlerTest {
     public void whenBuyOrderMatchesPriceAndItsPartiallyFilledAddsEventsAndAddsToPriorityQueue() {
         Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(50).build();
         Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(20).build();
-        when(ordersPriorityQueue.read(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
+        when(ordersPriorityQueue.read(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder)).thenReturn(ReadQueueResult.empty());
 
         matchOrderCommandHandler.match(buyOrder);
         verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
@@ -105,5 +108,50 @@ public class MatchOrderCommandHandlerTest {
         verify(orderRepository, never()).saveAndFlush(any());
         verify(ordersPriorityQueue).add(sellOrder.asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.asPersistentModel());
+    }
+
+    @Test
+    public void whenBuyOrderMatchesPriceAndItsPartiallyFilledTwiceThenAddsTwoEventsAndAddsToPriorityQueue() {
+        ArgumentCaptor<EventPersistentModel> captor = ArgumentCaptor.forClass(EventPersistentModel.class);
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(50).build();
+        Order firstSellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(20).build();
+        Order secondSellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(25).build();
+        when(ordersPriorityQueue.read(Side.SELL))
+                .thenReturn(ReadQueueResult.with(firstSellOrder))
+                .thenReturn(ReadQueueResult.with(secondSellOrder))
+                .thenReturn(ReadQueueResult.empty());
+
+        matchOrderCommandHandler.match(buyOrder);
+        verify(orderRepository, times(4)).saveAndFlush(captor.capture());
+
+        List<EventPersistentModel> allValues = captor.getAllValues();
+        assertEquals(allValues.get(0), Event.with(buyOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(1), Event.with(firstSellOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(2), Event.with(buyOrder.reduceQuantity(firstSellOrder.quantity()).reduceQuantity(secondSellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(3), Event.with(secondSellOrder.reduceQuantity(secondSellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+
+        verify(ordersPriorityQueue).add(buyOrder.reduceQuantity(firstSellOrder.quantity()).reduceQuantity(secondSellOrder.quantity()).asPersistentModel());
+        verify(ordersPriorityQueue, never()).add(firstSellOrder.reduceQuantity(firstSellOrder.quantity()).asPersistentModel());
+        verify(ordersPriorityQueue, never()).add(secondSellOrder.reduceQuantity(secondSellOrder.quantity()).asPersistentModel());
+    }
+
+    @Test
+    public void whenBuyOrderMatchesPriceAndItsFullyFilledThenAddsTwoEventsAndAddsRemainingMatchingOrderToPriorityQueue() {
+        ArgumentCaptor<EventPersistentModel> captor = ArgumentCaptor.forClass(EventPersistentModel.class);
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(50).build();
+        Order firstSellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(20).build();
+        Order secondSellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(35).build();
+
+        when(ordersPriorityQueue.read(Side.SELL))
+                .thenReturn(ReadQueueResult.with(firstSellOrder))
+                .thenReturn(ReadQueueResult.with(secondSellOrder));
+
+        matchOrderCommandHandler.match(buyOrder);
+        verify(orderRepository, times(4)).saveAndFlush(captor.capture());
+        List<EventPersistentModel> allValues = captor.getAllValues();
+        assertEquals(allValues.get(0), Event.with(buyOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(1), Event.with(firstSellOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(2), Event.with(buyOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        assertEquals(allValues.get(3), Event.with(secondSellOrder.reduceQuantity(Quantity.of(30)), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
     }
 }
