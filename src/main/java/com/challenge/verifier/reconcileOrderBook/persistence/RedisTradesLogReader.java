@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class RedisTradesLogReader implements TradesLogReader {
 
@@ -19,9 +21,9 @@ public class RedisTradesLogReader implements TradesLogReader {
     }
 
     @Override
-    public TradeLogsResult readNext() {
-        Object tradesLog = redisTemplate.opsForList().leftPop(key);
-        if (tradesLog == null) return TradeLogsResult.empty();
-        return TradeLogsResult.with(String.valueOf(tradesLog));
+    public TradeLogsResult readAll() {
+        List<String> range = redisTemplate.opsForList().range(key, 0, -1);
+        if (range == null) return TradeLogsResult.empty();
+        return TradeLogsResult.with(range);
     }
 }

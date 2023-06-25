@@ -5,6 +5,8 @@ import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.domain.Side;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
+import com.challenge.verifier.reconcileOrderBook.domain.TradeLogsResult;
+import com.challenge.verifier.reconcileOrderBook.ports.TradesLogReader;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +20,31 @@ public class ReconcileOrderBookCommandHandler {
     public static final int LEFT_PAD_QUANTITY = 11;
     public static final int LEFT_PAD_PRICE = 6;
     private OrdersPriorityQueue ordersPriorityQueue;
+    private TradesLogReader tradesLogReader;
 
-    public ReconcileOrderBookCommandHandler(OrdersPriorityQueue ordersPriorityQueue) {
+    public ReconcileOrderBookCommandHandler(OrdersPriorityQueue ordersPriorityQueue, TradesLogReader tradesLogReader) {
         this.ordersPriorityQueue = ordersPriorityQueue;
+        this.tradesLogReader = tradesLogReader;
     }
 
     public ReconciliationResult reconcile() {
         String string = "";
-
+        string = readFromTradesLog(string);
         string = readPendingOrders(string);
         try {
             return ReconciliationResult.withOutput(hash(string));
         } catch (NoSuchAlgorithmException e) {
             return ReconciliationResult.withError(e.getMessage());
         }
+    }
+
+    private String readFromTradesLog(String string) {
+        TradeLogsResult tradeLogsResult = tradesLogReader.readAll();
+        for (String log : tradeLogsResult.logs) {
+            string += log;
+            string += "\n";
+        }
+        return string;
     }
 
     private String readPendingOrders(String string) {

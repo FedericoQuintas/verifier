@@ -1,11 +1,13 @@
 package com.challenge.verifier.reconcileOrderBook.domain;
 
+import java.util.List;
+
 public class TradeLogsResult {
 
-    public String log;
+    public List<String> logs;
 
-    private TradeLogsResult(String log) {
-        this.log = log;
+    private TradeLogsResult(List<String> logs) {
+        this.logs = logs;
     }
 
     private TradeLogsResult() {
@@ -15,8 +17,8 @@ public class TradeLogsResult {
         return new TradeLogsResult();
     }
 
-    public static TradeLogsResult with(String log) {
-        return new TradeLogsResult(log);
+    public static TradeLogsResult with(List<String> logs) {
+        return new TradeLogsResult(logs);
     }
 
 }

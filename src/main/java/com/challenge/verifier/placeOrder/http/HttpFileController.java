@@ -3,6 +3,7 @@ package com.challenge.verifier.placeOrder.http;
 import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.domain.TimeProvider;
 import com.challenge.verifier.placeOrder.handler.PlaceOrderCommandHandler;
+import com.challenge.verifier.reconcileOrderBook.handler.ReconcileOrderBookCommandHandler;
 import org.apache.log4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,14 @@ import static java.lang.Thread.sleep;
 public class HttpFileController {
 
     private PlaceOrderCommandHandler placeOrderCommandHandler;
+    private ReconcileOrderBookCommandHandler reconcileOrderBookCommandHandler;
     private TimeProvider timeProvider;
     private Logger logger = Logger.getLogger(HttpFileController.class);
 
 
-    public HttpFileController(PlaceOrderCommandHandler placeOrderCommandHandler, TimeProvider timeProvider) {
+    public HttpFileController(PlaceOrderCommandHandler placeOrderCommandHandler, ReconcileOrderBookCommandHandler reconcileOrderBookCommandHandler, TimeProvider timeProvider) {
         this.placeOrderCommandHandler = placeOrderCommandHandler;
+        this.reconcileOrderBookCommandHandler = reconcileOrderBookCommandHandler;
         this.timeProvider = timeProvider;
     }
 
@@ -38,12 +41,12 @@ public class HttpFileController {
         logger.info("Receives file " + file.getOriginalFilename());
         BufferedReader bufferedReader = setUpBufferReader(file);
         try {
-            return placeOrders(bufferedReader);
+            placeOrders(bufferedReader);
+            return ResponseEntity.ok().body(reconcileOrderBookCommandHandler.reconcile());
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             return ResponseEntity.internalServerError().body("Unknown error: Please try again later");
         }
-
     }
 
     private static BufferedReader setUpBufferReader(MultipartFile file) throws IOException {
@@ -53,16 +56,15 @@ public class HttpFileController {
         return bufferedReader;
     }
 
-    private ResponseEntity<String> placeOrders(BufferedReader bufferedReader) {
+    private void placeOrders(BufferedReader bufferedReader) {
         bufferedReader.lines()
                 .forEach(line -> {
                     try {
-                        sleep(300);
+                        sleep(200);
                         placeOrderCommandHandler.place(Order.buildFrom(line, timeProvider.now()));
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage());
                     }
                 });
-        return ResponseEntity.ok().body("Success");
     }
 }

@@ -2,6 +2,7 @@ package com.challenge.verifier.placeOrder.http;
 
 import com.challenge.verifier.placeOrder.domain.*;
 import com.challenge.verifier.placeOrder.handler.PlaceOrderCommandHandler;
+import com.challenge.verifier.reconcileOrderBook.handler.ReconcileOrderBookCommandHandler;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ public class HttpFileControllerTest {
     PlaceOrderCommandHandler placeOrderCommandHandler;
 
     @MockBean
+    ReconcileOrderBookCommandHandler reconcileOrderBookCommandHandler;
+
+    @MockBean
     TimeProvider timeProvider;
 
     @BeforeEach
@@ -73,6 +77,7 @@ public class HttpFileControllerTest {
         assertEquals(Price.of(98), firstOrder.price());
         assertEquals(Quantity.of(25500), firstOrder.quantity());
         assertEquals(NOW, firstOrder.timestamp());
+        verify(reconcileOrderBookCommandHandler).reconcile();
     }
 
     @SneakyThrows
