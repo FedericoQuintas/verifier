@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -35,7 +34,7 @@ public class MatchOrderCommandHandlerTest {
         matchOrderCommandHandler = new MatchOrderCommandHandler(ordersPriorityQueue, orderRepository, timeProvider);
     }
 
-    //    @Test
+    @Test
     public void ifOrderAlreadyFilledThenDoesNothing() {
         Order order = new TestOrderBuilder().build();
         Event event = Event.with(order, EventType.ORDER_FILLED, Instant.now());
@@ -97,8 +96,8 @@ public class MatchOrderCommandHandlerTest {
 
     @Test
     public void whenSellOrderIsHigherThanHighestBuyOrderThenOnlyAddsToPriorityQueue() {
-        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(BigDecimal.valueOf(50)).build();
-        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(BigDecimal.valueOf(100)).build();
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(50).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(100).build();
         when(ordersPriorityQueue.readFrom(Side.BUY)).thenReturn(ReadQueueResult.with(buyOrder));
 
         matchOrderCommandHandler.match(sellOrder);
@@ -110,8 +109,8 @@ public class MatchOrderCommandHandlerTest {
 
     @Test
     public void whenBuyOrderIsLowerThanHighestSellOrderThenOnlyAddsToPriorityQueue() {
-        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(BigDecimal.valueOf(50)).build();
-        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(BigDecimal.valueOf(100)).build();
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withPrice(50).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withPrice(100).build();
         when(ordersPriorityQueue.readFrom(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
 
         matchOrderCommandHandler.match(buyOrder);

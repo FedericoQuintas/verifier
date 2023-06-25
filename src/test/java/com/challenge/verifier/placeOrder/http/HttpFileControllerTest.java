@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.FileInputStream;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -71,7 +70,7 @@ public class HttpFileControllerTest {
         Order firstOrder = captor.getAllValues().get(0);
         assertEquals(Side.BUY, firstOrder.side());
         assertEquals(Id.of(10000L), firstOrder.id());
-        assertEquals(Price.of(BigDecimal.valueOf(98)), firstOrder.price());
+        assertEquals(Price.of(98), firstOrder.price());
         assertEquals(Quantity.of(25500), firstOrder.quantity());
         assertEquals(NOW, firstOrder.timestamp());
     }

@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +21,7 @@ import static org.mockito.Mockito.verify;
 public class RedisOrderPlacedQueueTest {
 
     public static final int MILLIS = 400;
-    public static final Price PRICE = Price.of(BigDecimal.valueOf(98));
+    public static final Price PRICE = Price.of(98);
     public static final Quantity QUANTITY = Quantity.of(25500);
     public static final Id ID = Id.of(10000L);
 

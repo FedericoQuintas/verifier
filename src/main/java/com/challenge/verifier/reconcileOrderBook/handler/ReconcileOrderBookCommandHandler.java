@@ -1,0 +1,72 @@
+package com.challenge.verifier.reconcileOrderBook.handler;
+
+import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
+import com.challenge.verifier.placeOrder.domain.Order;
+import com.challenge.verifier.placeOrder.domain.Side;
+import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
+import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.stereotype.Service;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
+
+@Service
+public class ReconcileOrderBookCommandHandler {
+
+    private OrdersPriorityQueue ordersPriorityQueue;
+
+    public ReconcileOrderBookCommandHandler(OrdersPriorityQueue ordersPriorityQueue) {
+        this.ordersPriorityQueue = ordersPriorityQueue;
+    }
+
+    public ReconciliationResult reconcile() {
+        ReadQueueResult readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
+        ReadQueueResult readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
+        String string = "";
+        while (!readBuyQueueResult.isEmpty() || !readSellQueueResult.isEmpty()) {
+            string = append(string, readBuyQueueResult, readSellQueueResult);
+            readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
+            readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
+            string += "\n";
+        }
+        System.out.println(string);
+        try {
+            return ReconciliationResult.withOutput(hash(string));
+        } catch (NoSuchAlgorithmException e) {
+            return ReconciliationResult.withError(e.getMessage());
+        }
+    }
+
+    private String hash(String string) throws NoSuchAlgorithmException {
+        return DigestUtils.md5Hex(string);
+    }
+
+    private String append(String currentString, ReadQueueResult readBuyQueueResult, ReadQueueResult readSellQueueResult) {
+        if (!readBuyQueueResult.isEmpty()) {
+            Order order = readBuyQueueResult.order();
+            currentString += padLeftZeros(String.format(Locale.US, "%,d", order.quantity().value()), 11) + " " + padLeftZeros(String.valueOf(order.price().value()), 6);
+        } else {
+            currentString += "                  ";
+        }
+        currentString += " | ";
+        if (!readSellQueueResult.isEmpty()) {
+            Order order = readSellQueueResult.order();
+            currentString += padLeftZeros(String.valueOf(order.price().value()), 6) + " " + padLeftZeros(String.format(Locale.US, "%,d", order.quantity().value()), 11);
+        }
+        return currentString;
+    }
+
+    private String padLeftZeros(String inputString, int length) {
+        if (inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < length - inputString.length()) {
+            sb.append(" ");
+        }
+        sb.append(inputString);
+
+        return sb.toString();
+    }
+}

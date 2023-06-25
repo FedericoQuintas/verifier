@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +15,7 @@ public class OrderPersistentModel implements Serializable {
     private Long id;
     private String side;
     private int quantity;
-    private BigDecimal price;
+    private Integer price;
     private long timestamp;
 
     @JsonIgnore

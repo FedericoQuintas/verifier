@@ -1,9 +1,7 @@
 package com.challenge.verifier.placeOrder.domain;
 
-import java.math.BigDecimal;
-
-public record Price(BigDecimal value) {
-    public static Price of(BigDecimal value) {
+public record Price(Integer value) {
+    public static Price of(Integer value) {
         return new Price(value);
     }
 

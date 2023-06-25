@@ -1,6 +1,5 @@
 package com.challenge.verifier.placeOrder.domain;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 public record Order(Id id, Side side, Quantity quantity, Price price, Instant timestamp) {
@@ -22,7 +21,7 @@ public record Order(Id id, Side side, Quantity quantity, Price price, Instant ti
         String price = parse(parts[2], "Price is required");
         String quantity = parse(parts[3], "Quantity is required");
         Side side = parseSide(parts[1]);
-        return new Order(Id.of(Long.valueOf(orderId)), side, Quantity.of(Integer.parseInt(quantity)), Price.of(new BigDecimal(price)), timestamp);
+        return new Order(Id.of(Long.valueOf(orderId)), side, Quantity.of(Integer.parseInt(quantity)), Price.of(Integer.parseInt(price)), timestamp);
     }
 
     private static String parse(String input, String message) {

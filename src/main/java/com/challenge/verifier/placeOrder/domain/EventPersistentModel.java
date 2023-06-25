@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity(name = "Order_Events")
@@ -20,7 +19,7 @@ public class EventPersistentModel {
     @Column(name = "id", nullable = false)
     private Long id;
     @Column(name = "price", nullable = false)
-    private BigDecimal price;
+    private Integer price;
     @Column(name = "side", nullable = false)
     private String side;
     @Column(name = "quantity", nullable = false)
@@ -30,7 +29,7 @@ public class EventPersistentModel {
     @Column(name = "event_time", nullable = false)
     private Instant event_time;
 
-    public EventPersistentModel(Long id, String side, Integer quantity, BigDecimal price, String event_type, Instant event_time) {
+    public EventPersistentModel(Long id, String side, Integer quantity, Integer price, String event_type, Instant event_time) {
         this.id = id;
         this.side = side;
         this.quantity = quantity;

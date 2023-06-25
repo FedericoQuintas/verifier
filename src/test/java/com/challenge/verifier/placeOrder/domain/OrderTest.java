@@ -22,7 +22,7 @@ public class OrderTest {
         Order order = TestOrderBuilder.buildOrder();
         assertEquals(order.id(), Id.of(10000L));
         assertEquals(order.side(), Side.BUY);
-        assertEquals(order.price(), Price.of(BigDecimal.valueOf(98)));
+        assertEquals(order.price(), Price.of(98));
         assertEquals(order.quantity(), Quantity.of(25500));
     }
 
