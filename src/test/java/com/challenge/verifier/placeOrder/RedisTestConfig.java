@@ -31,12 +31,6 @@ public class RedisTestConfig {
     @Value("${REDIS_HOST}")
     private String host;
 
-    @Value("${REDIS_PASS}")
-    private String pass;
-
-    @Value("${REDIS_PORT}")
-    private int port;
-
     @MockBean
     private MatchOrderCommandHandler matchOrderCommandHandler;
 

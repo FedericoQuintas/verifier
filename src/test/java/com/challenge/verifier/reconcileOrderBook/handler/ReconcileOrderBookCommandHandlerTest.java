@@ -1,4 +1,4 @@
-package com.challenge.verifier.reconcileOrderBook;
+package com.challenge.verifier.reconcileOrderBook.handler;
 
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.placeOrder.domain.Order;
