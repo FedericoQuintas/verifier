@@ -9,9 +9,9 @@ services:
     networks:
       - verifier-network
     volumes:
-      - ./data:/data
-  orders-db:
-    container_name: orders-db
+      - dbvol:/data
+  ordersDB:
+    container_name: ordersDB
     image: mysql:8.0
     networks:
       - verifier-network
@@ -21,7 +21,8 @@ services:
       - MYSQL_DATABASE=ordersDB
       - MYSQL_ROOT_PASSWORD=secret
     volumes:
-      - dbvol:/var/lib/mysql
+      - dbvol:/var/lib/my_sql
+      - "./schema.sql:/docker-entrypoint-initdb.d/1.sql"
     ports:
       - "3306:3306"
     restart: always
@@ -38,9 +39,9 @@ services:
     links:
       - redis
     depends_on:
-      - orders-db
+      - ordersDB
     environment:
-      - MYSQL_HOST=orders-db
+      - MYSQL_HOST=ordersDB
       - MYSQL_USER=verifier-user
       - MYSQL_PASSWORD=verifier-pass
       - MYSQL_DATABASE=ordersDB
