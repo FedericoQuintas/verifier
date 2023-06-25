@@ -1,8 +1,8 @@
 package com.challenge.verifier.reconcileOrderBook.handler;
 
-import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.domain.Side;
+import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
+import com.challenge.verifier.placeOrder.domain.SnapshotResult;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
 import com.challenge.verifier.reconcileOrderBook.domain.TradeLogsResult;
@@ -11,7 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 public class ReconcileOrderBookCommandHandler {
@@ -40,50 +40,55 @@ public class ReconcileOrderBookCommandHandler {
 
     private String readFromTradesLog(String string) {
         TradeLogsResult tradeLogsResult = tradesLogReader.readAll();
+        StringBuilder stringBuilder = new StringBuilder(string);
         for (String log : tradeLogsResult.logs) {
-            string += log;
+            stringBuilder.append(log);
+            stringBuilder.append("\n");
+        }
+        string = stringBuilder.toString();
+        return string;
+    }
+
+    private String readPendingOrders(String string) {
+        SnapshotResult snapshot = ordersPriorityQueue.snapshot();
+        if (snapshot.failed()) throw new RuntimeException("Reconciliation failed");
+        List<OrderPersistentModel> buyQueue = getAndReverseBuyQueue(snapshot.buyQueue());
+        List<OrderPersistentModel> sellQueue = snapshot.sellQueue();
+        Iterator<OrderPersistentModel> buyQueueIterator = buyQueue.iterator();
+        Iterator<OrderPersistentModel> sellQueueIterator = sellQueue.iterator();
+        while (buyQueueIterator.hasNext() || sellQueueIterator.hasNext()) {
+            OrderPersistentModel nextBuy = buyQueueIterator.hasNext() ? buyQueueIterator.next() : null;
+            OrderPersistentModel nextSell = sellQueueIterator.hasNext() ? sellQueueIterator.next() : null;
+            string = append(string, nextBuy, nextSell);
             string += "\n";
         }
         return string;
     }
 
-    private String readPendingOrders(String string) {
-        ReadQueueResult readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
-        ReadQueueResult readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
-        while (!readBuyQueueResult.isEmpty() || !readSellQueueResult.isEmpty()) {
-            string = append(string, readBuyQueueResult, readSellQueueResult);
-            readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
-            readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
-            string += "\n";
-        }
-        return string;
+    private List<OrderPersistentModel> getAndReverseBuyQueue(List<OrderPersistentModel> queue) {
+        List<OrderPersistentModel> buyQueue = new ArrayList<>(queue);
+        Collections.reverse(buyQueue);
+        return buyQueue;
     }
 
     private String hash(String string) throws NoSuchAlgorithmException {
         return DigestUtils.md5Hex(string);
     }
 
-    private String append(String currentString, ReadQueueResult readBuyQueueResult, ReadQueueResult readSellQueueResult) {
-        currentString = fillBuySide(currentString, readBuyQueueResult);
+    private String append(String currentString, OrderPersistentModel buyOrder, OrderPersistentModel sellOrder) {
+        currentString = fillSide(currentString, buyOrder);
         currentString += " | ";
-        currentString = fillSellSide(currentString, readSellQueueResult);
+        currentString = fillSide(currentString, sellOrder);
         return currentString;
     }
 
-    private static String fillSellSide(String currentString, ReadQueueResult readSellQueueResult) {
-        if (!readSellQueueResult.isEmpty()) {
-            Order order = readSellQueueResult.order();
-            currentString += padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE) + " " + padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY);
-        } else {
-            currentString = fillEmptySlot(currentString); // Note: I don't have a test to verify if this is actually expected for the Sell side too.
-        }
-        return currentString;
-    }
-
-    private static String fillBuySide(String currentString, ReadQueueResult readBuyQueueResult) {
-        if (!readBuyQueueResult.isEmpty()) {
-            Order order = readBuyQueueResult.order();
-            currentString += padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY) + " " + padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE);
+    private static String fillSide(String currentString, OrderPersistentModel orderPersistentModel) {
+        if (orderPersistentModel != null) {
+            Order order = Order.buildFrom(orderPersistentModel);
+            currentString += order.isOnBuySide() ? padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY)
+                    + " " + padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE)
+                    : padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE)
+                    + " " + padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY);
         } else {
             currentString = fillEmptySlot(currentString);
         }

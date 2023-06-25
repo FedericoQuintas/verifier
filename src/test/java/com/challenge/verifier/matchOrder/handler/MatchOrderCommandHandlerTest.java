@@ -67,7 +67,7 @@ public class MatchOrderCommandHandlerTest {
 
         matchOrderCommandHandler.match(buyOrder);
 
-        verify(tradesLogWriter).append("trade 10000, 99999, 98, 25500");
+        verify(tradesLogWriter).append("trade 10000,99999,98,25500");
         verify(ordersPriorityQueue, never()).add(any());
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
@@ -84,7 +84,7 @@ public class MatchOrderCommandHandlerTest {
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
         verify(ordersPriorityQueue, never()).add(sellOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
-        verify(tradesLogWriter).append("trade 10000, 99999, 98, 20");
+        verify(tradesLogWriter).append("trade 10000,99999,98,20");
     }
 
     @Test

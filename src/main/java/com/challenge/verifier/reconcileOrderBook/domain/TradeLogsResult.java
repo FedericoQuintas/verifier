@@ -10,11 +10,8 @@ public class TradeLogsResult {
         this.logs = logs;
     }
 
-    private TradeLogsResult() {
-    }
-
     public static TradeLogsResult empty() {
-        return new TradeLogsResult();
+        return new TradeLogsResult(List.of());
     }
 
     public static TradeLogsResult with(List<String> logs) {

@@ -58,7 +58,7 @@ public class MatchOrderCommandHandler {
     }
 
     private void appendToTradeLog(Order order, Order matchingOrder, Quantity matchingQuantity) {
-        String log = "trade " + order.id().value() + ", " + matchingOrder.id().value() + ", " + matchingOrder.price().value() + ", " + matchingQuantity.value();
+        String log = "trade " + order.id().value() + "," + matchingOrder.id().value() + "," + matchingOrder.price().value() + "," + matchingQuantity.value();
         tradesLogWriter.append(log);
     }
 

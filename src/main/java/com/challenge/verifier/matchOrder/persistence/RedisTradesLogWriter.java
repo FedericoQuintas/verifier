@@ -21,7 +21,7 @@ public class RedisTradesLogWriter implements TradesLogWriter {
     @Override
     public void append(String log) {
         Long result = redisTemplate.opsForList().rightPush(key, log);
-        if (result == 1) {
+        if (result > 0) {
             logger.info("Appends log successfully: " + log);
         } else {
             logger.info("Log append failed: " + log);

@@ -4,6 +4,7 @@ import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.placeOrder.domain.Order;
 import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
 import com.challenge.verifier.placeOrder.domain.Side;
+import com.challenge.verifier.placeOrder.domain.SnapshotResult;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.placeOrder.stream.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
@@ -38,6 +41,23 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
             log(order, order.getId(), " could not be added to the queue " + key + " with quantity: ");
             return Result.error();
         }
+    }
+
+    @Override
+    public SnapshotResult snapshot() {
+        try {
+            List<OrderPersistentModel> buyQueue = fetchFromQueue(BUY_KEY);
+            List<OrderPersistentModel> sellQueue = fetchFromQueue(SELL_KEY);
+            return SnapshotResult.with(buyQueue, sellQueue);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return SnapshotResult.error();
+        }
+    }
+
+    private List<OrderPersistentModel> fetchFromQueue(String key) {
+        Set range = redisTemplate.opsForZSet().range(key, 0, -1);
+        return range == null ? List.of() : range.stream().map(obj -> new ObjectMapper().convertValue(obj, OrderPersistentModel.class)).toList();
     }
 
     @Override
