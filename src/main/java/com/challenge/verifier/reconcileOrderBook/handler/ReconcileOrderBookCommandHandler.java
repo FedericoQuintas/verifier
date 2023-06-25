@@ -24,20 +24,26 @@ public class ReconcileOrderBookCommandHandler {
     }
 
     public ReconciliationResult reconcile() {
+        String string = "";
+
+        string = readPendingOrders(string);
+        try {
+            return ReconciliationResult.withOutput(hash(string));
+        } catch (NoSuchAlgorithmException e) {
+            return ReconciliationResult.withError(e.getMessage());
+        }
+    }
+
+    private String readPendingOrders(String string) {
         ReadQueueResult readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
         ReadQueueResult readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
-        String string = "";
         while (!readBuyQueueResult.isEmpty() || !readSellQueueResult.isEmpty()) {
             string = append(string, readBuyQueueResult, readSellQueueResult);
             readBuyQueueResult = ordersPriorityQueue.readFrom(Side.BUY);
             readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
             string += "\n";
         }
-        try {
-            return ReconciliationResult.withOutput(hash(string));
-        } catch (NoSuchAlgorithmException e) {
-            return ReconciliationResult.withError(e.getMessage());
-        }
+        return string;
     }
 
     private String hash(String string) throws NoSuchAlgorithmException {

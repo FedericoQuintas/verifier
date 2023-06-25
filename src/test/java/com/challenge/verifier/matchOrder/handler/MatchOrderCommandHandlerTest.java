@@ -2,6 +2,7 @@ package com.challenge.verifier.matchOrder.handler;
 
 import com.challenge.verifier.matchOrder.MatchOrderCommandHandler;
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
+import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
 import com.challenge.verifier.placeOrder.domain.*;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
@@ -24,14 +25,16 @@ public class MatchOrderCommandHandlerTest {
     private MatchOrderCommandHandler matchOrderCommandHandler;
     private OrderRepository orderRepository;
     private TimeProvider timeProvider;
+    private TradesLogWriter tradesLogWriter;
 
     @BeforeEach
     public void before() {
         ordersPriorityQueue = mock(OrdersPriorityQueue.class);
         orderRepository = mock(OrderRepository.class);
         timeProvider = mock(TimeProvider.class);
+        tradesLogWriter = mock(TradesLogWriter.class);
         when(timeProvider.now()).thenReturn(NOW);
-        matchOrderCommandHandler = new MatchOrderCommandHandler(ordersPriorityQueue, orderRepository, timeProvider);
+        matchOrderCommandHandler = new MatchOrderCommandHandler(ordersPriorityQueue, orderRepository, timeProvider, tradesLogWriter);
     }
 
     @Test
@@ -57,12 +60,14 @@ public class MatchOrderCommandHandlerTest {
 
     @Test
     public void whenOtherSideQueueHasOneExactlyMatchingOfferThenAddsEventsAndDoesNotAddToPriorityQueue() {
-        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).build();
-        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).build();
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withId(10000).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withId(99999).build();
         when(ordersPriorityQueue.readFrom(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
+
 
         matchOrderCommandHandler.match(buyOrder);
 
+        verify(tradesLogWriter).append("trade 10000, 99999, 98, 25500");
         verify(ordersPriorityQueue, never()).add(any());
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
@@ -70,8 +75,8 @@ public class MatchOrderCommandHandlerTest {
 
     @Test
     public void whenBuyOrderMatchesPriceAndItsPartiallyFilledAddsEventsAndAddsToPriorityQueue() {
-        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(50).build();
-        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(20).build();
+        Order buyOrder = new TestOrderBuilder().withSide(Side.BUY).withQuantity(50).withId(10000).build();
+        Order sellOrder = new TestOrderBuilder().withSide(Side.SELL).withQuantity(20).withId(99999).build();
         when(ordersPriorityQueue.readFrom(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder)).thenReturn(ReadQueueResult.empty());
 
         matchOrderCommandHandler.match(buyOrder);
@@ -79,6 +84,7 @@ public class MatchOrderCommandHandlerTest {
         verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
         verify(ordersPriorityQueue, never()).add(sellOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
+        verify(tradesLogWriter).append("trade 10000, 99999, 98, 20");
     }
 
     @Test

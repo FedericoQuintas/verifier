@@ -1,6 +1,7 @@
 package com.challenge.verifier.matchOrder;
 
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
+import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
 import com.challenge.verifier.placeOrder.domain.*;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
@@ -16,11 +17,14 @@ public class MatchOrderCommandHandler {
     private OrdersPriorityQueue ordersPriorityQueue;
     private OrderRepository orderRepository;
     private TimeProvider timeProvider;
+    private TradesLogWriter tradesLogWriter;
 
-    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderRepository orderRepository, TimeProvider timeProvider) {
+    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderRepository orderRepository,
+                                    TimeProvider timeProvider, TradesLogWriter tradesLogWriter) {
         this.ordersPriorityQueue = ordersPriorityQueue;
         this.orderRepository = orderRepository;
         this.timeProvider = timeProvider;
+        this.tradesLogWriter = tradesLogWriter;
     }
 
     public void match(Order order) {
@@ -45,11 +49,17 @@ public class MatchOrderCommandHandler {
                 matchingOrder = matchingOrder.reduceQuantity(matchingQuantity);
                 order = order.reduceQuantity(matchingQuantity);
                 matchingComplete = updateOrders(order, matchingOrder);
+                appendToTradeLog(order, matchingOrder, matchingQuantity);
             } else {
                 returnOrdersToPriorityQueue(order, matchingOrder);
                 return;
             }
         }
+    }
+
+    private void appendToTradeLog(Order order, Order matchingOrder, Quantity matchingQuantity) {
+        String log = "trade " + order.id().value() + ", " + matchingOrder.id().value() + ", " + matchingOrder.price().value() + ", " + matchingQuantity.value();
+        tradesLogWriter.append(log);
     }
 
     private static Quantity calculateMatchingQuantity(Order order, Order matchingOrder) {
