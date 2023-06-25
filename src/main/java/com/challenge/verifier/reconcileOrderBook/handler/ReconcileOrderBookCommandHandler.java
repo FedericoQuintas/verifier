@@ -14,6 +14,9 @@ import java.util.Locale;
 @Service
 public class ReconcileOrderBookCommandHandler {
 
+    public static final int LEFT_PAD_EMPTY_SLOT = 18;
+    public static final int LEFT_PAD_QUANTITY = 11;
+    public static final int LEFT_PAD_PRICE = 6;
     private OrdersPriorityQueue ordersPriorityQueue;
 
     public ReconcileOrderBookCommandHandler(OrdersPriorityQueue ordersPriorityQueue) {
@@ -30,7 +33,6 @@ public class ReconcileOrderBookCommandHandler {
             readSellQueueResult = ordersPriorityQueue.readFrom(Side.SELL);
             string += "\n";
         }
-        System.out.println(string);
         try {
             return ReconciliationResult.withOutput(hash(string));
         } catch (NoSuchAlgorithmException e) {
@@ -43,21 +45,42 @@ public class ReconcileOrderBookCommandHandler {
     }
 
     private String append(String currentString, ReadQueueResult readBuyQueueResult, ReadQueueResult readSellQueueResult) {
-        if (!readBuyQueueResult.isEmpty()) {
-            Order order = readBuyQueueResult.order();
-            currentString += padLeftZeros(String.format(Locale.US, "%,d", order.quantity().value()), 11) + " " + padLeftZeros(String.valueOf(order.price().value()), 6);
-        } else {
-            currentString += "                  ";
-        }
+        currentString = fillBuySide(currentString, readBuyQueueResult);
         currentString += " | ";
+        currentString = fillSellSide(currentString, readSellQueueResult);
+        return currentString;
+    }
+
+    private static String fillSellSide(String currentString, ReadQueueResult readSellQueueResult) {
         if (!readSellQueueResult.isEmpty()) {
             Order order = readSellQueueResult.order();
-            currentString += padLeftZeros(String.valueOf(order.price().value()), 6) + " " + padLeftZeros(String.format(Locale.US, "%,d", order.quantity().value()), 11);
+            currentString += padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE) + " " + padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY);
+        } else {
+            currentString = fillEmptySlot(currentString); // Note: I don't have a test to verify if this is actually expected for the Sell side too.
         }
         return currentString;
     }
 
-    private String padLeftZeros(String inputString, int length) {
+    private static String fillBuySide(String currentString, ReadQueueResult readBuyQueueResult) {
+        if (!readBuyQueueResult.isEmpty()) {
+            Order order = readBuyQueueResult.order();
+            currentString += padLeftZeros(formatForThousands(order), LEFT_PAD_QUANTITY) + " " + padLeftZeros(String.valueOf(order.price().value()), LEFT_PAD_PRICE);
+        } else {
+            currentString = fillEmptySlot(currentString);
+        }
+        return currentString;
+    }
+
+    private static String formatForThousands(Order order) {
+        return String.format(Locale.US, "%,d", order.quantity().value());
+    }
+
+    private static String fillEmptySlot(String currentString) {
+        currentString += " ".repeat(LEFT_PAD_EMPTY_SLOT);
+        return currentString;
+    }
+
+    private static String padLeftZeros(String inputString, int length) {
         if (inputString.length() >= length) {
             return inputString;
         }
