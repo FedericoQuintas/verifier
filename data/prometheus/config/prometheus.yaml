@@ -1,0 +1,12 @@
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'localhost:9090','verifier-app:8080' ]
+  - job_name: 'Verifier'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 2s
+    static_configs:
+      - targets: [ 'verifier-app:8080' ]
+        labels:
+          application: 'Verifier'

@@ -104,7 +104,7 @@ public class HttpFileControllerTest {
                 = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         mockMvc.perform(multipart(UPLOAD).file(file))
                 .andExpect(status().is5xxServerError())
-                .andExpect(result -> assertEquals("Unknown error: Please try again later",
+                .andExpect(result -> assertEquals("Please try again later",
                         result.getResponse().getContentAsString()));
     }
 }

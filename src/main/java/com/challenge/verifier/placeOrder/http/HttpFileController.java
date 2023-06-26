@@ -45,7 +45,7 @@ public class HttpFileController {
             return ResponseEntity.ok().body(reconcileOrderBookCommandHandler.reconcile());
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            return ResponseEntity.internalServerError().body("Unknown error: Please try again later");
+            return ResponseEntity.internalServerError().body("Please try again later");
         }
     }
 
