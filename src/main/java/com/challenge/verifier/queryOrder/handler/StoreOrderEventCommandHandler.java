@@ -1,7 +1,7 @@
-package com.challenge.verifier.storeOrder.handler;
+package com.challenge.verifier.queryOrder.handler;
 
 import com.challenge.verifier.common.domain.Event;
-import com.challenge.verifier.storeOrder.ports.OrderEventRepository;
+import com.challenge.verifier.queryOrder.ports.OrderEventRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +14,6 @@ public class StoreOrderEventCommandHandler {
     }
 
     public void store(Event event) {
-        orderEventRepository.saveAndFlush(event.asPersistentModel());
+        orderEventRepository.save(event.asPersistentModel());
     }
 }

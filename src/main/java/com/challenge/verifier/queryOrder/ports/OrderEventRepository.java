@@ -1,4 +1,4 @@
-package com.challenge.verifier.storeOrder.ports;
+package com.challenge.verifier.queryOrder.ports;
 
 import com.challenge.verifier.common.domain.EventPersistentModel;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.helper;
+package com.challenge.verifier.common.helper;
 
 import com.challenge.verifier.common.domain.*;
 

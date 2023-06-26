@@ -1,8 +1,8 @@
-package com.challenge.verifier.placeOrder.stream;
+package com.challenge.verifier.stream;
 
 import com.challenge.verifier.common.domain.*;
 import com.challenge.verifier.matchOrder.handler.MatchOrderCommandHandler;
-import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
+import com.challenge.verifier.common.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

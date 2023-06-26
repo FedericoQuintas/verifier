@@ -1,7 +1,7 @@
-package com.challenge.verifier.storeOrder.query;
+package com.challenge.verifier.queryOrder.query;
 
 import com.challenge.verifier.common.domain.EventPersistentModel;
-import com.challenge.verifier.storeOrder.ports.OrderEventRepository;
+import com.challenge.verifier.queryOrder.ports.OrderEventRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -2,7 +2,7 @@ package com.challenge.verifier.reconcileOrderBook.handler;
 
 import com.challenge.verifier.common.domain.OrderPersistentModel;
 import com.challenge.verifier.common.domain.Side;
-import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
+import com.challenge.verifier.common.helper.TestOrderBuilder;
 import com.challenge.verifier.matchOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
 import com.challenge.verifier.matchOrder.domain.SnapshotResult;

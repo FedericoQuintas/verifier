@@ -5,8 +5,8 @@ import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
 import com.challenge.verifier.matchOrder.ports.OrdersPriorityQueue;
-import com.challenge.verifier.storeOrder.handler.StoreOrderEventCommandHandler;
-import com.challenge.verifier.storeOrder.query.OrderEventQueryService;
+import com.challenge.verifier.queryOrder.handler.StoreOrderEventCommandHandler;
+import com.challenge.verifier.queryOrder.query.OrderEventQueryService;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
