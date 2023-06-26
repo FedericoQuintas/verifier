@@ -5,7 +5,7 @@ import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
-import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
+import com.challenge.verifier.matchOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.storeOrder.handler.StoreOrderEventCommandHandler;
 import com.challenge.verifier.storeOrder.query.OrderEventQueryService;
 import org.junit.jupiter.api.BeforeEach;

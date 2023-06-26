@@ -1,7 +1,7 @@
 package com.challenge.verifier.placeOrder;
 
 import com.challenge.verifier.matchOrder.handler.MatchOrderCommandHandler;
-import com.challenge.verifier.placeOrder.stream.RedisOrderPlacedQueueListener;
+import com.challenge.verifier.matchOrder.stream.RedisOrderPlacedQueueListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

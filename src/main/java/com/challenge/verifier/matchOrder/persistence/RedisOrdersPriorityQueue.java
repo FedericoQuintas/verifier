@@ -1,12 +1,12 @@
-package com.challenge.verifier.placeOrder.persistence;
+package com.challenge.verifier.matchOrder.persistence;
 
-import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.common.domain.Order;
 import com.challenge.verifier.common.domain.OrderPersistentModel;
 import com.challenge.verifier.common.domain.Side;
-import com.challenge.verifier.reconcileOrderBook.domain.SnapshotResult;
-import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
-import com.challenge.verifier.placeOrder.stream.Result;
+import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
+import com.challenge.verifier.matchOrder.domain.Result;
+import com.challenge.verifier.matchOrder.domain.SnapshotResult;
+import com.challenge.verifier.matchOrder.ports.OrdersPriorityQueue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,7 +33,7 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
     @Override
     public Result add(OrderPersistentModel order) {
         String key = order.isOnBuySide() ? BUY_KEY : SELL_KEY;
-        Boolean result = redisTemplate.opsForZSet().add(key, order, score(order));
+        boolean result = redisTemplate.opsForZSet().add(key, order, score(order));
         if (result) {
             log(order, order.getId(), " was added to the queue " + key + " with quantity: ");
             return Result.ok();

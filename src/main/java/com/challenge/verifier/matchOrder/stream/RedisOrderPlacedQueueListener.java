@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.stream;
+package com.challenge.verifier.matchOrder.stream;
 
 import com.challenge.verifier.matchOrder.handler.MatchOrderCommandHandler;
 import com.challenge.verifier.common.domain.Order;

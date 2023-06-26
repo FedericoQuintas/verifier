@@ -1,4 +1,4 @@
-package com.challenge.verifier.reconcileOrderBook.domain;
+package com.challenge.verifier.matchOrder.domain;
 
 import com.challenge.verifier.common.domain.OrderPersistentModel;
 

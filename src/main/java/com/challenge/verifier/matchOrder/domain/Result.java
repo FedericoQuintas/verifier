@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.stream;
+package com.challenge.verifier.matchOrder.domain;
 
 public class Result {
 
