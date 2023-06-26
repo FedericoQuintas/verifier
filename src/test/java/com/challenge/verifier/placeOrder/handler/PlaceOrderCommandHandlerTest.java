@@ -6,8 +6,9 @@ import com.challenge.verifier.common.domain.Order;
 import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
-import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.stream.Result;
+import com.challenge.verifier.storeOrder.handler.StoreOrderEventCommandHandler;
+import com.challenge.verifier.storeOrder.query.OrderEventQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,16 +21,18 @@ public class PlaceOrderCommandHandlerTest {
     public static final Instant NOW = Instant.now();
     private PlaceOrderCommandHandler placeOrderCommandHandler;
     private OrderPlacedPublisher publisher;
-    private OrderRepository orderRepository;
     private TimeProvider timeProvider;
+    private StoreOrderEventCommandHandler storeOrderEventCommandHandler;
+    private OrderEventQueryService orderEventQueryService;
 
     @BeforeEach
     public void before() {
         publisher = mock(OrderPlacedPublisher.class);
-        orderRepository = mock(OrderRepository.class);
+        storeOrderEventCommandHandler = mock(StoreOrderEventCommandHandler.class);
+        orderEventQueryService = mock(OrderEventQueryService.class);
         timeProvider = mock(TimeProvider.class);
         when(timeProvider.now()).thenReturn(NOW);
-        placeOrderCommandHandler = new PlaceOrderCommandHandler(publisher, orderRepository, timeProvider);
+        placeOrderCommandHandler = new PlaceOrderCommandHandler(publisher, storeOrderEventCommandHandler, orderEventQueryService, timeProvider);
         when(publisher.publish(any())).thenReturn(Result.ok());
     }
 
@@ -45,16 +48,16 @@ public class PlaceOrderCommandHandlerTest {
         Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
         placeOrderCommandHandler.place(order);
-        verify(orderRepository).save(event.asPersistentModel());
+        verify(storeOrderEventCommandHandler).store(event);
     }
 
     @Test
     public void discardsRepeatedOrder() {
         Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
-        when(orderRepository.existsById(event.asPersistentModel().getId())).thenReturn(true);
+        when(orderEventQueryService.existsById(event.asPersistentModel().getId())).thenReturn(true);
         placeOrderCommandHandler.place(order);
-        verify(orderRepository, never()).save(event.asPersistentModel());
+        verify(storeOrderEventCommandHandler, never()).store(event);
     }
 
     @Test
@@ -63,6 +66,6 @@ public class PlaceOrderCommandHandlerTest {
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
         when(publisher.publish(any())).thenReturn(Result.error());
         placeOrderCommandHandler.place(order);
-        verify(orderRepository, never()).save(event.asPersistentModel());
+        verify(storeOrderEventCommandHandler, never()).store(event);
     }
 }

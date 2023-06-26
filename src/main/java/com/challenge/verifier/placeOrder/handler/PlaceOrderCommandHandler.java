@@ -6,7 +6,8 @@ import com.challenge.verifier.common.domain.Id;
 import com.challenge.verifier.common.domain.Order;
 import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
-import com.challenge.verifier.placeOrder.ports.OrderRepository;
+import com.challenge.verifier.storeOrder.handler.StoreOrderEventCommandHandler;
+import com.challenge.verifier.storeOrder.query.OrderEventQueryService;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +15,15 @@ import org.springframework.stereotype.Service;
 public class PlaceOrderCommandHandler {
 
     private OrderPlacedPublisher publisher;
-    private OrderRepository orderRepository;
+    private StoreOrderEventCommandHandler storeOrderEventCommandHandler;
+    private OrderEventQueryService orderEventQueryService;
     private Logger logger = Logger.getLogger(PlaceOrderCommandHandler.class);
     private TimeProvider timeProvider;
 
-    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, OrderRepository orderRepository, TimeProvider timeProvider) {
+    public PlaceOrderCommandHandler(OrderPlacedPublisher publisher, StoreOrderEventCommandHandler storeOrderEventCommandHandler, OrderEventQueryService orderEventQueryService, TimeProvider timeProvider) {
         this.publisher = publisher;
-        this.orderRepository = orderRepository;
+        this.storeOrderEventCommandHandler = storeOrderEventCommandHandler;
+        this.orderEventQueryService = orderEventQueryService;
         this.timeProvider = timeProvider;
     }
 
@@ -31,10 +34,10 @@ public class PlaceOrderCommandHandler {
         }
         var publisherResult = publisher.publish(order.asPersistentModel());
         if (publisherResult.succeeded())
-            orderRepository.save(Event.with(order, EventType.ORDER_PLACED, timeProvider.now()).asPersistentModel());
+            storeOrderEventCommandHandler.store(Event.with(order, EventType.ORDER_PLACED, timeProvider.now()));
     }
 
     private boolean wasOrderAlreadyPlaced(Id id) {
-        return orderRepository.existsById(id.value());
+        return orderEventQueryService.existsById(id.value());
     }
 }

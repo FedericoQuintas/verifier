@@ -4,8 +4,9 @@ import com.challenge.verifier.common.domain.*;
 import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
-import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
+import com.challenge.verifier.storeOrder.handler.StoreOrderEventCommandHandler;
+import com.challenge.verifier.storeOrder.query.OrderEventQueryService;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +17,22 @@ public class MatchOrderCommandHandler {
 
     private Logger logger = Logger.getLogger(MatchOrderCommandHandler.class);
     private OrdersPriorityQueue ordersPriorityQueue;
-    private OrderRepository orderRepository;
     private TimeProvider timeProvider;
+    private StoreOrderEventCommandHandler storeOrderEventCommandHandler;
+    private OrderEventQueryService orderEventQueryService;
     private TradesLogWriter tradesLogWriter;
 
-    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderRepository orderRepository,
-                                    TimeProvider timeProvider, TradesLogWriter tradesLogWriter) {
+    public MatchOrderCommandHandler(OrdersPriorityQueue ordersPriorityQueue, OrderEventQueryService orderEventQueryService,
+                                    TimeProvider timeProvider, StoreOrderEventCommandHandler storeOrderEventCommandHandler, TradesLogWriter tradesLogWriter) {
         this.ordersPriorityQueue = ordersPriorityQueue;
-        this.orderRepository = orderRepository;
         this.timeProvider = timeProvider;
+        this.storeOrderEventCommandHandler = storeOrderEventCommandHandler;
+        this.orderEventQueryService = orderEventQueryService;
         this.tradesLogWriter = tradesLogWriter;
     }
 
     public void match(Order order) {
-        List<EventPersistentModel> orderEvents = orderRepository.findAllById(List.of(order.id().value()));
+        List<EventPersistentModel> orderEvents = orderEventQueryService.findAllById(List.of(order.id().value()));
         if (Event.wasAlreadyProcessed(orderEvents)) {
             logger.info("Order " + order.id().value() + " was already processed");
             return;
@@ -70,16 +73,16 @@ public class MatchOrderCommandHandler {
     private boolean updateOrders(Order order, Order matchingOrder) {
         boolean matchingComplete = false;
         if (order.hasRemainingQuantity()) {
-            orderRepository.save(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
+            storeOrderEventCommandHandler.store(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED));
         } else {
-            orderRepository.save(buildEvent(order, EventType.ORDER_FILLED).asPersistentModel());
+            storeOrderEventCommandHandler.store(buildEvent(order, EventType.ORDER_FILLED));
             matchingComplete = true;
         }
         if (matchingOrder.hasRemainingQuantity()) {
-            orderRepository.save(buildEvent(matchingOrder, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
+            storeOrderEventCommandHandler.store(buildEvent(matchingOrder, EventType.ORDER_PARTIALLY_FILLED));
             addToPriorityQueue(matchingOrder);
         } else {
-            orderRepository.save(buildEvent(matchingOrder, EventType.ORDER_FILLED).asPersistentModel());
+            storeOrderEventCommandHandler.store(buildEvent(matchingOrder, EventType.ORDER_FILLED));
         }
         return matchingComplete;
     }

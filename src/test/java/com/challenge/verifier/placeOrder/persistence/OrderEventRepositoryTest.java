@@ -5,7 +5,7 @@ import com.challenge.verifier.common.domain.EventPersistentModel;
 import com.challenge.verifier.common.domain.EventType;
 import com.challenge.verifier.common.domain.Order;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
-import com.challenge.verifier.placeOrder.ports.OrderRepository;
+import com.challenge.verifier.storeOrder.ports.OrderEventRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,13 +18,13 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 
 @DataJpaTest
-public class OrderRepositoryTest {
+public class OrderEventRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
 
     @Autowired
-    OrderRepository repository;
+    OrderEventRepository repository;
 
     @Test
     public void storesAndFindsOrder() {
