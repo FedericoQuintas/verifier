@@ -2,10 +2,10 @@ package com.challenge.verifier.reconcileOrderBook.handler;
 
 import com.challenge.verifier.common.domain.OrderPersistentModel;
 import com.challenge.verifier.common.domain.Side;
-import com.challenge.verifier.reconcileOrderBook.domain.SnapshotResult;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
+import com.challenge.verifier.reconcileOrderBook.domain.SnapshotResult;
 import com.challenge.verifier.reconcileOrderBook.domain.TradeLogsResult;
 import com.challenge.verifier.reconcileOrderBook.ports.TradesLogReader;
 import org.junit.Before;
@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -111,5 +112,18 @@ public class ReconcileOrderBookCommandHandlerTest {
 
         ReconciliationResult result = reconcileOrderBook.reconcile();
         assertEquals("f8ab9bf8688c0edaa0730b4b28a6462b", result.output());
+    }
+
+
+    @Test
+    public void throwsExceptionWhenSnapshotFails() {
+        when(logReader.readAll()).thenReturn(TradeLogsResult.with(List.of()));
+        when(ordersPriorityQueue.snapshot()).thenReturn(SnapshotResult.error());
+        try {
+            reconcileOrderBook.reconcile();
+            fail();
+        } catch (Exception e) {
+            assertEquals("Reconciliation failed", e.getMessage());
+        }
     }
 }
