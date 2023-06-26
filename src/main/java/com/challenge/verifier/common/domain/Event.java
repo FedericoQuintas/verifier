@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.domain;
+package com.challenge.verifier.common.domain;
 
 import java.time.Instant;
 import java.util.List;

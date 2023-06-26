@@ -1,10 +1,10 @@
 package com.challenge.verifier.placeOrder.persistence;
 
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
-import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
-import com.challenge.verifier.placeOrder.domain.Side;
-import com.challenge.verifier.placeOrder.domain.SnapshotResult;
+import com.challenge.verifier.common.domain.Order;
+import com.challenge.verifier.common.domain.OrderPersistentModel;
+import com.challenge.verifier.common.domain.Side;
+import com.challenge.verifier.reconcileOrderBook.domain.SnapshotResult;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.placeOrder.stream.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;

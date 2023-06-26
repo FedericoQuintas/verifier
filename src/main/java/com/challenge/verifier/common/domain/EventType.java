@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.domain;
+package com.challenge.verifier.common.domain;
 
 public enum EventType {
     ORDER_PLACED,

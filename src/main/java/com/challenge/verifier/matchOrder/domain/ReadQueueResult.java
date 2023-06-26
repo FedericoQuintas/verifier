@@ -1,6 +1,6 @@
 package com.challenge.verifier.matchOrder.domain;
 
-import com.challenge.verifier.placeOrder.domain.Order;
+import com.challenge.verifier.common.domain.Order;
 
 public class ReadQueueResult {
 

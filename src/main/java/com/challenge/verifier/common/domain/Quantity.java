@@ -1,4 +1,4 @@
-package com.challenge.verifier.placeOrder.domain;
+package com.challenge.verifier.common.domain;
 
 public record Quantity(int value) {
     public static Quantity of(int value) {

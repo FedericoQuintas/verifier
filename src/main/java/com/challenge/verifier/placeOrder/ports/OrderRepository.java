@@ -1,6 +1,6 @@
 package com.challenge.verifier.placeOrder.ports;
 
-import com.challenge.verifier.placeOrder.domain.EventPersistentModel;
+import com.challenge.verifier.common.domain.EventPersistentModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

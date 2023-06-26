@@ -1,6 +1,6 @@
 package com.challenge.verifier.placeOrder.stream;
 
-import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
+import com.challenge.verifier.common.domain.OrderPersistentModel;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Profile;

@@ -1,7 +1,7 @@
 package com.challenge.verifier.placeOrder.stream;
 
-import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.domain.TimeProvider;
+import com.challenge.verifier.common.domain.Order;
+import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.placeOrder.handler.PlaceOrderCommandHandler;
 import com.challenge.verifier.placeOrder.ports.OrderStreamReader;
 import org.apache.log4j.Logger;

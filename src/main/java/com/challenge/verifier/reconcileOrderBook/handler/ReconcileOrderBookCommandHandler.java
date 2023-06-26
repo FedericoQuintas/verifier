@@ -1,8 +1,8 @@
 package com.challenge.verifier.reconcileOrderBook.handler;
 
-import com.challenge.verifier.placeOrder.domain.Order;
-import com.challenge.verifier.placeOrder.domain.OrderPersistentModel;
-import com.challenge.verifier.placeOrder.domain.SnapshotResult;
+import com.challenge.verifier.common.domain.Order;
+import com.challenge.verifier.common.domain.OrderPersistentModel;
+import com.challenge.verifier.reconcileOrderBook.domain.SnapshotResult;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.reconcileOrderBook.domain.ReconciliationResult;
 import com.challenge.verifier.reconcileOrderBook.domain.TradeLogsResult;

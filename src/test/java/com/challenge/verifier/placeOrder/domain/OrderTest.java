@@ -1,9 +1,9 @@
 package com.challenge.verifier.placeOrder.domain;
 
+import com.challenge.verifier.common.domain.*;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 

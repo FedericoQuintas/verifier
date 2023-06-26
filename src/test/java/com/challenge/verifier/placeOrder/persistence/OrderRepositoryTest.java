@@ -1,9 +1,9 @@
 package com.challenge.verifier.placeOrder.persistence;
 
-import com.challenge.verifier.placeOrder.domain.Event;
-import com.challenge.verifier.placeOrder.domain.EventPersistentModel;
-import com.challenge.verifier.placeOrder.domain.EventType;
-import com.challenge.verifier.placeOrder.domain.Order;
+import com.challenge.verifier.common.domain.Event;
+import com.challenge.verifier.common.domain.EventPersistentModel;
+import com.challenge.verifier.common.domain.EventType;
+import com.challenge.verifier.common.domain.Order;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import org.junit.jupiter.api.Test;

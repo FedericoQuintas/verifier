@@ -1,5 +1,6 @@
 package com.challenge.verifier.placeOrder.domain;
 
+import com.challenge.verifier.common.domain.*;
 import com.challenge.verifier.placeOrder.helper.TestOrderBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

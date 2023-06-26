@@ -1,6 +1,6 @@
 package com.challenge.verifier.placeOrder.helper;
 
-import com.challenge.verifier.placeOrder.domain.*;
+import com.challenge.verifier.common.domain.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

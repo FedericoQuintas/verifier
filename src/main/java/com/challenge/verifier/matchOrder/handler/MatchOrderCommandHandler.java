@@ -1,8 +1,9 @@
-package com.challenge.verifier.matchOrder;
+package com.challenge.verifier.matchOrder.handler;
 
+import com.challenge.verifier.common.domain.*;
+import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.matchOrder.domain.ReadQueueResult;
 import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
-import com.challenge.verifier.placeOrder.domain.*;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import com.challenge.verifier.placeOrder.ports.OrdersPriorityQueue;
 import org.apache.log4j.Logger;

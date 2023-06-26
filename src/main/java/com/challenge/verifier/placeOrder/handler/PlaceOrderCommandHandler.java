@@ -1,6 +1,10 @@
 package com.challenge.verifier.placeOrder.handler;
 
-import com.challenge.verifier.placeOrder.domain.*;
+import com.challenge.verifier.common.domain.Event;
+import com.challenge.verifier.common.domain.EventType;
+import com.challenge.verifier.common.domain.Id;
+import com.challenge.verifier.common.domain.Order;
+import com.challenge.verifier.common.time.TimeProvider;
 import com.challenge.verifier.placeOrder.ports.OrderPlacedPublisher;
 import com.challenge.verifier.placeOrder.ports.OrderRepository;
 import org.apache.log4j.Logger;
