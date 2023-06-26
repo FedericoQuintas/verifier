@@ -69,8 +69,8 @@ public class MatchOrderCommandHandlerTest {
 
         verify(tradesLogWriter).append("trade 10000,99999,98,25500");
         verify(ordersPriorityQueue, never()).add(any());
-        verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
-        verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
     }
 
     @Test
@@ -80,8 +80,8 @@ public class MatchOrderCommandHandlerTest {
         when(ordersPriorityQueue.readFrom(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder)).thenReturn(ReadQueueResult.empty());
 
         matchOrderCommandHandler.match(buyOrder);
-        verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
-        verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(sellOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(buyOrder.reduceQuantity(sellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
         verify(ordersPriorityQueue, never()).add(sellOrder.reduceQuantity(sellOrder.quantity()).asPersistentModel());
         verify(tradesLogWriter).append("trade 10000,99999,98,20");
@@ -94,8 +94,8 @@ public class MatchOrderCommandHandlerTest {
         when(ordersPriorityQueue.readFrom(Side.SELL)).thenReturn(ReadQueueResult.with(sellOrder));
 
         matchOrderCommandHandler.match(buyOrder);
-        verify(orderRepository).saveAndFlush(Event.with(sellOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
-        verify(orderRepository).saveAndFlush(Event.with(buyOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(sellOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
+        verify(orderRepository).save(Event.with(buyOrder.reduceQuantity(buyOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());
         verify(ordersPriorityQueue).add(sellOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
         verify(ordersPriorityQueue, never()).add(buyOrder.reduceQuantity(buyOrder.quantity()).asPersistentModel());
     }
@@ -108,7 +108,7 @@ public class MatchOrderCommandHandlerTest {
 
         matchOrderCommandHandler.match(sellOrder);
 
-        verify(orderRepository, never()).saveAndFlush(any());
+        verify(orderRepository, never()).save(any());
         verify(ordersPriorityQueue).add(sellOrder.asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.asPersistentModel());
     }
@@ -121,7 +121,7 @@ public class MatchOrderCommandHandlerTest {
 
         matchOrderCommandHandler.match(buyOrder);
 
-        verify(orderRepository, never()).saveAndFlush(any());
+        verify(orderRepository, never()).save(any());
         verify(ordersPriorityQueue).add(sellOrder.asPersistentModel());
         verify(ordersPriorityQueue).add(buyOrder.asPersistentModel());
     }
@@ -138,7 +138,7 @@ public class MatchOrderCommandHandlerTest {
                 .thenReturn(ReadQueueResult.empty());
 
         matchOrderCommandHandler.match(buyOrder);
-        verify(orderRepository, times(4)).saveAndFlush(captor.capture());
+        verify(orderRepository, times(4)).save(captor.capture());
 
         List<EventPersistentModel> allValues = captor.getAllValues();
         assertEquals(allValues.get(0), Event.with(buyOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
@@ -163,7 +163,7 @@ public class MatchOrderCommandHandlerTest {
                 .thenReturn(ReadQueueResult.with(secondSellOrder));
 
         matchOrderCommandHandler.match(buyOrder);
-        verify(orderRepository, times(4)).saveAndFlush(captor.capture());
+        verify(orderRepository, times(4)).save(captor.capture());
         List<EventPersistentModel> allValues = captor.getAllValues();
         assertEquals(allValues.get(0), Event.with(buyOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_PARTIALLY_FILLED, NOW).asPersistentModel());
         assertEquals(allValues.get(1), Event.with(firstSellOrder.reduceQuantity(firstSellOrder.quantity()), EventType.ORDER_FILLED, NOW).asPersistentModel());

@@ -70,16 +70,16 @@ public class MatchOrderCommandHandler {
     private boolean updateOrders(Order order, Order matchingOrder) {
         boolean matchingComplete = false;
         if (order.hasRemainingQuantity()) {
-            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
+            orderRepository.save(buildEvent(order, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
         } else {
-            orderRepository.saveAndFlush(buildEvent(order, EventType.ORDER_FILLED).asPersistentModel());
+            orderRepository.save(buildEvent(order, EventType.ORDER_FILLED).asPersistentModel());
             matchingComplete = true;
         }
         if (matchingOrder.hasRemainingQuantity()) {
-            orderRepository.saveAndFlush(buildEvent(matchingOrder, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
+            orderRepository.save(buildEvent(matchingOrder, EventType.ORDER_PARTIALLY_FILLED).asPersistentModel());
             addToPriorityQueue(matchingOrder);
         } else {
-            orderRepository.saveAndFlush(buildEvent(matchingOrder, EventType.ORDER_FILLED).asPersistentModel());
+            orderRepository.save(buildEvent(matchingOrder, EventType.ORDER_FILLED).asPersistentModel());
         }
         return matchingComplete;
     }

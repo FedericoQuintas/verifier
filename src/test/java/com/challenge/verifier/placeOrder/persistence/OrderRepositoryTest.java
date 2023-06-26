@@ -30,7 +30,7 @@ public class OrderRepositoryTest {
     public void storesAndFindsOrder() {
         Order order = TestOrderBuilder.buildOrder();
         EventPersistentModel event = Event.with(order, EventType.ORDER_PLACED, Instant.now()).asPersistentModel();
-        repository.saveAndFlush(event);
+        repository.save(event);
         Optional<EventPersistentModel> eventOptional = repository.findById(event.getId());
         assertEquals(eventOptional.get().getId(), event.getId());
         List<EventPersistentModel> eventsByOrderId = repository.findAllById(List.of(event.getId()));

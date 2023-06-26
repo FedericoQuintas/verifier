@@ -31,7 +31,7 @@ public class PlaceOrderCommandHandler {
         }
         var publisherResult = publisher.publish(order.asPersistentModel());
         if (publisherResult.succeeded())
-            orderRepository.saveAndFlush(Event.with(order, EventType.ORDER_PLACED, timeProvider.now()).asPersistentModel());
+            orderRepository.save(Event.with(order, EventType.ORDER_PLACED, timeProvider.now()).asPersistentModel());
     }
 
     private boolean wasOrderAlreadyPlaced(Id id) {

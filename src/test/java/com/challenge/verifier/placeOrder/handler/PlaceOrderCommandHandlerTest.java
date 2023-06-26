@@ -45,7 +45,7 @@ public class PlaceOrderCommandHandlerTest {
         Order order = TestOrderBuilder.buildOrder();
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
         placeOrderCommandHandler.place(order);
-        verify(orderRepository).saveAndFlush(event.asPersistentModel());
+        verify(orderRepository).save(event.asPersistentModel());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class PlaceOrderCommandHandlerTest {
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
         when(orderRepository.existsById(event.asPersistentModel().getId())).thenReturn(true);
         placeOrderCommandHandler.place(order);
-        verify(orderRepository, never()).saveAndFlush(event.asPersistentModel());
+        verify(orderRepository, never()).save(event.asPersistentModel());
     }
 
     @Test
@@ -63,6 +63,6 @@ public class PlaceOrderCommandHandlerTest {
         Event event = Event.with(order, EventType.ORDER_PLACED, timeProvider.now());
         when(publisher.publish(any())).thenReturn(Result.error());
         placeOrderCommandHandler.place(order);
-        verify(orderRepository, never()).saveAndFlush(event.asPersistentModel());
+        verify(orderRepository, never()).save(event.asPersistentModel());
     }
 }
