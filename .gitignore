@@ -6,7 +6,6 @@ target/
 .mvn/
 mvnw
 mvnw.cmd
-test1.txt
 ./data/*
 
 ### STS ###
