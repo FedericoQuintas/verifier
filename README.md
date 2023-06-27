@@ -37,7 +37,7 @@ As orders are partially or fully filled it appends ORDER_FILLED and ORDER_PARTIA
 
 <br>
 
-##How to run:
+## How to run:
 
 The introduction of Redis and MySQL would have made the use of a single JAR uncomfortable, while Docker Compose is a popular and straightforward solution for the use case at hand.
 I’m aware that can make reviewers’ life a bit harder, and I hope the following commands in the _test-commands_ folder help to test the solution:
@@ -56,7 +56,7 @@ I’m aware that can make reviewers’ life a bit harder, and I hope the followi
 
 <br>
 
-##Out of scope
+## Out of scope
 
 I decided to leave out of scope but nice to have for an internal prototype:
 <ul>
