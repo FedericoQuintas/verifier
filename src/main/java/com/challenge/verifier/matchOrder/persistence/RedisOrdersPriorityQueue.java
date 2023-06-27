@@ -74,6 +74,15 @@ public class RedisOrdersPriorityQueue implements OrdersPriorityQueue {
         }
     }
 
+    /*
+        Only added in case it helps reviewers to run test suites.
+     */
+    @Override
+    public void deleteAll() {
+        redisTemplate.delete(BUY_KEY);
+        redisTemplate.delete(SELL_KEY);
+    }
+
     private ZSetOperations.TypedTuple fetchTuple(String key, Side matchingSide) {
         if (Side.BUY.equals(matchingSide)) {
             return redisTemplate.opsForZSet().popMax(key);

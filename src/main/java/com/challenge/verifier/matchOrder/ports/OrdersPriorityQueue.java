@@ -12,4 +12,6 @@ public interface OrdersPriorityQueue {
     SnapshotResult snapshot();
 
     ReadQueueResult readFrom(Side matchingSide);
+
+    void deleteAll();
 }

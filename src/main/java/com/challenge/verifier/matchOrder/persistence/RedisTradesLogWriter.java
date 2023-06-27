@@ -28,4 +28,12 @@ public class RedisTradesLogWriter implements TradesLogWriter {
         }
     }
 
+    /*
+    Only added in case it helps reviewers to run test suites.
+    */
+    @Override
+    public void deleteAll() {
+        redisTemplate.delete(key);
+    }
+
 }
