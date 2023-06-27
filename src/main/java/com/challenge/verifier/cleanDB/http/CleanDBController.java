@@ -2,7 +2,6 @@ package com.challenge.verifier.cleanDB.http;
 
 import com.challenge.verifier.matchOrder.ports.OrdersPriorityQueue;
 import com.challenge.verifier.matchOrder.ports.TradesLogWriter;
-import com.challenge.verifier.placeOrder.http.HttpFileController;
 import com.challenge.verifier.queryOrder.ports.OrderEventRepository;
 import org.apache.log4j.Logger;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CleanDBController {
 
     private OrderEventRepository orderEventRepository;
-    private Logger logger = Logger.getLogger(HttpFileController.class);
+    private Logger logger = Logger.getLogger(CleanDBController.class);
     private TradesLogWriter tradesLogWriter;
     private OrdersPriorityQueue ordersPriorityQueue;
 
@@ -29,7 +28,7 @@ public class CleanDBController {
         Only added in case it helps reviewers to run test suites.
         It doesn't need auth keys.
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, value = "/clean")
     public ResponseEntity clean() {
         logger.info("Request to clean DBs");
         try {

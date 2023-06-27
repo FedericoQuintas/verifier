@@ -8,7 +8,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,9 +34,6 @@ public class HttpFileControllerTest {
     public static final String UPLOAD = "/upload";
     public static final int ORDERS_IN_TEST_FILE = 6;
     public static final Instant NOW = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
-    @InjectMocks
-    HttpFileControllerTest httpFileController;
 
     @MockBean
     PlaceOrderCommandHandler placeOrderCommandHandler;
